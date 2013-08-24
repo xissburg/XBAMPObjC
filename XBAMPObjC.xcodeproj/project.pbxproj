@@ -25,6 +25,8 @@
 		1BC225A617C6656C006C2D6C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1BC2259317C6656C006C2D6C /* Foundation.framework */; };
 		1BC225A917C6656C006C2D6C /* libXBAMPObjC.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1BC2259017C6656C006C2D6C /* libXBAMPObjC.a */; };
 		1BC225AF17C6656C006C2D6C /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 1BC225AD17C6656C006C2D6C /* InfoPlist.strings */; };
+		1BCFE3D017C93ED500EE96D3 /* XBAMPFloat.m in Sources */ = {isa = PBXBuildFile; fileRef = 1BCFE3CF17C93ED500EE96D3 /* XBAMPFloat.m */; };
+		1BCFE3D317C9550700EE96D3 /* XBAMPDate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1BCFE3D217C9550700EE96D3 /* XBAMPDate.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -77,6 +79,10 @@
 		1BC225A417C6656C006C2D6C /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		1BC225AC17C6656C006C2D6C /* XBAMPObjCTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "XBAMPObjCTests-Info.plist"; sourceTree = "<group>"; };
 		1BC225AE17C6656C006C2D6C /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		1BCFE3CE17C93ED500EE96D3 /* XBAMPFloat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XBAMPFloat.h; sourceTree = "<group>"; };
+		1BCFE3CF17C93ED500EE96D3 /* XBAMPFloat.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XBAMPFloat.m; sourceTree = "<group>"; };
+		1BCFE3D117C9550700EE96D3 /* XBAMPDate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XBAMPDate.h; sourceTree = "<group>"; };
+		1BCFE3D217C9550700EE96D3 /* XBAMPDate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XBAMPDate.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -148,6 +154,10 @@
 				1B30C70B17C864CD00BB414A /* XBAMPString.m */,
 				1B30C70D17C866C100BB414A /* XBAMPBoolean.h */,
 				1B30C70E17C866C100BB414A /* XBAMPBoolean.m */,
+				1BCFE3CE17C93ED500EE96D3 /* XBAMPFloat.h */,
+				1BCFE3CF17C93ED500EE96D3 /* XBAMPFloat.m */,
+				1BCFE3D117C9550700EE96D3 /* XBAMPDate.h */,
+				1BCFE3D217C9550700EE96D3 /* XBAMPDate.m */,
 				1B30C70417C8534400BB414A /* XBAMPCommand.h */,
 				1B30C70517C8534400BB414A /* XBAMPCommand.m */,
 				1BC2259817C6656C006C2D6C /* XBAMPObjC.h */,
@@ -289,6 +299,8 @@
 				1B30C70917C8625B00BB414A /* XBAMPBytes.m in Sources */,
 				1B30C70C17C864CD00BB414A /* XBAMPString.m in Sources */,
 				1B30C70F17C866C100BB414A /* XBAMPBoolean.m in Sources */,
+				1BCFE3D017C93ED500EE96D3 /* XBAMPFloat.m in Sources */,
+				1BCFE3D317C9550700EE96D3 /* XBAMPDate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

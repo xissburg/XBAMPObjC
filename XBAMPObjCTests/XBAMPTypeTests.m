@@ -10,6 +10,8 @@
 #import "XBAMPBytes.h"
 #import "XBAMPString.h"
 #import "XBAMPBoolean.h"
+#import "XBAMPFloat.h"
+#import "XBAMPDate.h"
 
     // Collaborators
 
@@ -113,6 +115,53 @@
     data = [@"True" dataUsingEncoding:NSUTF8StringEncoding];
     number = [XBAMPBoolean decodeData:data];
     assert(number.boolValue == YES);
+}
+
+- (void)testFloatEncoding
+{
+    NSArray *numbers = @[@(-3.141592653589793238462643383279502), @(NAN), @(INFINITY), @(-INFINITY)];
+    
+    for (NSNumber *number in numbers) {
+        NSData *data = [XBAMPFloat encodeObject:number];
+        NSString *string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+        assertThat([number description], is(equalTo(string)));
+    }
+}
+
+- (void)testFloatDecoding
+{
+    NSArray *strings = @[@"-3.141592653589793238462643383279502", @"nan", @"inf", @"-inf"];
+    
+    for (NSString *string in strings) {
+        NSData *data = [string dataUsingEncoding:NSUTF8StringEncoding];
+        NSNumber *number = [XBAMPFloat decodeData:data];
+        assert(number.doubleValue == string.doubleValue);
+    }
+}
+
+- (void)testDateEncoding
+{
+    NSDate *date = [NSDate date];
+    NSData *data = [XBAMPDate encodeObject:date];
+    
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    formatter.dateFormat = @"yyyy-MM-dd'T'HH:mm:ss.SSSSZ";
+    NSString *dateString = [formatter stringFromDate:date];
+    
+    assertThat(data, is(equalTo([dateString dataUsingEncoding:NSUTF8StringEncoding])));
+}
+
+- (void)testDateDecoding
+{
+    NSString *string = @"2012-01-23T12:34:56.054321-01:23";
+    
+    NSDate *date = [XBAMPDate decodeData:[string dataUsingEncoding:NSUTF8StringEncoding]];
+    
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    formatter.dateFormat = @"yyyy-MM-dd'T'HH:mm:ss.SSSSSZ";
+    NSDate *dateFromString = [formatter dateFromString:string];
+    
+    assertThat(date, is(equalTo(dateFromString)));
 }
 
 @end
