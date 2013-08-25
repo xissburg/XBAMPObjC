@@ -10,4 +10,8 @@
 
 @interface XBAMPDictionary : XBAMPType
 
+@property (nonatomic, readonly) NSDictionary *elementTypes;
+
+- (id)initWithElementTypes:(NSDictionary *)elementTypes;
+
 @end

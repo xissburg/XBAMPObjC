@@ -211,12 +211,37 @@
 
 - (void)testDictionaryEncoding
 {
+    NSDictionary *dictionary = @{@"name": @"Nilson Souto", @"nick": @"xissburg", @"age": @26, @"antichrist": @YES};
+    XBAMPDictionary *ampDictionary = [[XBAMPDictionary alloc] initWithElementTypes:@{@"name": [[XBAMPString alloc] init], @"nick": [[XBAMPString alloc] init], @"age": [[XBAMPInteger alloc] init], @"antichrist": [[XBAMPBoolean alloc] init]}];
+    NSData *data = [ampDictionary encodeObject:dictionary];
     
+    int i = 0;
+    while (i < data.length) {
+        unsigned short length = 0;
+        [data getBytes:&length range:NSMakeRange(i, sizeof(length))];
+        NSData *keyData = [data subdataWithRange:NSMakeRange(i + sizeof(length), length)];
+        NSString *key = [[NSString alloc] initWithData:keyData encoding:NSUTF8StringEncoding];
+        assert(dictionary[key] != nil);
+        i += length + sizeof(length);
+        
+        [data getBytes:&length range:NSMakeRange(i, sizeof(length))];
+        NSData *valueData = [data subdataWithRange:NSMakeRange(i + sizeof(length), length)];
+        XBAMPType *ampType = ampDictionary.elementTypes[key];
+        id value = [ampType decodeData:valueData];
+        assertThat(value, is(equalTo(dictionary[key])));
+        i += length + sizeof(length);
+    }
 }
 
 - (void)testDictionaryDecoding
 {
+    unsigned char bytes[] = {0x04, 0x00, 0x6e, 0x61, 0x6d, 0x65, 0x0c, 0x00, 0x4e, 0x69, 0x6c, 0x73, 0x6f, 0x6e, 0x20, 0x53, 0x6f, 0x75, 0x74, 0x6f, 0x03, 0x00, 0x61, 0x67, 0x65, 0x02, 0x00, 0x32, 0x36, 0x0a, 0x00, 0x61, 0x6e, 0x74, 0x69, 0x63, 0x68, 0x72, 0x69, 0x73, 0x74, 0x04, 0x00, 0x54, 0x72, 0x75, 0x65, 0x04, 0x00, 0x6e, 0x69, 0x63, 0x6b, 0x08, 0x00, 0x78, 0x69, 0x73, 0x73, 0x62, 0x75, 0x72, 0x67};
+    NSData *data = [[NSData alloc] initWithBytes:bytes length:sizeof(bytes)/sizeof(unsigned char)];
     
+    XBAMPDictionary *ampDictionary = [[XBAMPDictionary alloc] initWithElementTypes:@{@"name": [[XBAMPString alloc] init], @"nick": [[XBAMPString alloc] init], @"age": [[XBAMPInteger alloc] init], @"antichrist": [[XBAMPBoolean alloc] init]}];
+    NSDictionary *dictionary = [ampDictionary decodeData:data];
+    
+    assertThat(dictionary, is(equalTo(@{@"name": @"Nilson Souto", @"nick": @"xissburg", @"age": @26, @"antichrist": @YES})));
 }
 
 @end
