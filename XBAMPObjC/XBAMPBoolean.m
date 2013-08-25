@@ -10,14 +10,14 @@
 
 @implementation XBAMPBoolean
 
-+ (NSData *)encodeObject:(id)object
+- (NSData *)encodeObject:(id)object
 {
     NSNumber *number = object;
     NSString *string = number.boolValue? @"True": @"False";
     return [string dataUsingEncoding:NSUTF8StringEncoding];
 }
 
-+ (id)decodeData:(NSData *)data
+- (id)decodeData:(NSData *)data
 {
     NSString *string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     

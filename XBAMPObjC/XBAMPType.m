@@ -10,13 +10,13 @@
 
 @implementation XBAMPType
 
-+ (NSData *)encodeObject:(id)object
+- (NSData *)encodeObject:(id)object
 {
     NSAssert(NO, @"+[XBAMPType encodeObject:] is abstract and should be implemented by a subclass");
     return nil;
 }
 
-+ (id)decodeData:(NSData *)data
+- (id)decodeData:(NSData *)data
 {
     NSAssert(NO, @"+[XBAMPType decodeData:] is abstract and should be implemented by a subclass");
     return nil;

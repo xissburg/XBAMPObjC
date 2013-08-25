@@ -10,13 +10,13 @@
 
 @implementation XBAMPBytes
 
-+ (NSData *)encodeObject:(id)object
+- (NSData *)encodeObject:(id)object
 {
     NSData *data = object;
     return [data copy];
 }
 
-+ (id)decodeData:(NSData *)data
+- (id)decodeData:(NSData *)data
 {
     return [data copy];
 }

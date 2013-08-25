@@ -17,7 +17,7 @@
  
  @return The data that represents the encoded object
  */
-+ (NSData *)encodeObject:(id)object;
+- (NSData *)encodeObject:(id)object;
 
 /**
  Decodes the data of a value from an AMP packet into an object of the expected type.
@@ -26,6 +26,6 @@
  
  @return The decoded object.
  */
-+ (id)decodeData:(NSData *)data;
+- (id)decodeData:(NSData *)data;
 
 @end

@@ -10,13 +10,13 @@
 
 @implementation XBAMPString
 
-+ (NSData *)encodeObject:(id)object
+- (NSData *)encodeObject:(id)object
 {
     NSString *string = object;
     return [string dataUsingEncoding:NSUTF8StringEncoding];
 }
 
-+ (id)decodeData:(NSData *)data
+- (id)decodeData:(NSData *)data
 {
     return [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
 }

@@ -10,14 +10,14 @@
 
 @implementation XBAMPInteger
 
-+ (NSData *)encodeObject:(id)object
+- (NSData *)encodeObject:(id)object
 {
     NSNumber *number = object;
     NSString *string = [NSString stringWithFormat:@"%d", number.integerValue];
     return [string dataUsingEncoding:NSUTF8StringEncoding];
 }
 
-+ (id)decodeData:(NSData *)data
+- (id)decodeData:(NSData *)data
 {
     NSString *string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
     return [NSNumber numberWithInteger:string.integerValue];

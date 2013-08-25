@@ -10,17 +10,17 @@
 
 @implementation XBAMPDate
 
-+ (NSData *)encodeObject:(id)object
+- (NSData *)encodeObject:(id)object
 {
     NSDate *date = object;
-    NSString *string = [[self dateFormatter] stringFromDate:date];
+    NSString *string = [[XBAMPDate dateFormatter] stringFromDate:date];
     return [string dataUsingEncoding:NSUTF8StringEncoding];
 }
 
-+ (id)decodeData:(NSData *)data
+- (id)decodeData:(NSData *)data
 {
     NSString *dataString = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    return [[self dateFormatter] dateFromString:dataString];
+    return [[XBAMPDate dateFormatter] dateFromString:dataString];
 }
 
 + (NSDateFormatter *)dateFormatter
