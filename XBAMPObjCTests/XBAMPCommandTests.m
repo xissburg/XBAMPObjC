@@ -5,33 +5,30 @@
 //  Created by: xissburg
 //
 
-    // Class under test
 #import "XBAMPCommand.h"
 
-    // Collaborators
-
-    // Test support
-#import <SenTestingKit/SenTestingKit.h>
-
-#define HC_SHORTHAND
-#import <OCHamcrestIOS/OCHamcrestIOS.h>
-
-#define MOCKITO_SHORTHAND
-#import <OCMockitoIOS/OCMockitoIOS.h>
+#import <GHUnitIOS/GHUnit.h>
 
 
-@interface XBAMPCommandTests : SenTestCase
+@interface XBAMPCommandTests : GHTestCase
 @end
 
 @implementation XBAMPCommandTests
-{
-    // test fixture ivars go here
-}
 
 - (void)testInitialization
 {
-    //XBAMPCommand *command = [[XBAMPCommand alloc] initWithName:@"command" parameterTypes:@{@"intParam": [XBAMPInteger class], @"bytesParam": [XBAMPBytes class]}];
+    XBAMPInteger *ampInteger = [[XBAMPInteger alloc] init];
+    XBAMPBytes *ampBytes = [[XBAMPBytes alloc] init];
+    XBAMPDate *ampDate = [[XBAMPDate alloc] init];
+    XBAMPError *ampError = [[XBAMPError alloc] initWithCode:1 codeString:@"ERROR" description:@"This is an error"];
+    XBAMPCommand *command = [[XBAMPCommand alloc] initWithName:@"command" parameterTypes:@{@"intParam": ampInteger, @"bytesParam": ampBytes} responseTypes:@{@"dateResult": ampDate} errors:@[ampError]];
     
+    GHAssertEqualStrings(command.name, @"command", nil);
+    GHAssertEqualObjects(command.parameterTypes[@"intParam"], ampInteger, nil);
+    GHAssertEqualObjects(command.parameterTypes[@"bytesParam"], ampBytes, nil);
+    GHAssertEqualObjects(command.responseTypes[@"dateResult"], ampDate, nil);
+    GHAssertTrue([command.errors containsObject:ampError], nil);
+    GHAssertTrue(command.requiresAnswer, nil);
 }
 
 @end

@@ -1,0 +1,3 @@
+[submodule "Frameworks/CocoaAsyncSocket"]
+	path = Frameworks/CocoaAsyncSocket
+	url = git@github.com:robbiehanson/CocoaAsyncSocket.git

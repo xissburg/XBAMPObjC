@@ -5,7 +5,6 @@
 //  Created by: xissburg
 //
 
-    // Class under test
 #import "XBAMPInteger.h"
 #import "XBAMPBytes.h"
 #import "XBAMPString.h"
@@ -15,19 +14,10 @@
 #import "XBAMPArray.h"
 #import "XBAMPDictionary.h"
 
-    // Collaborators
-
-    // Test support
-#import <SenTestingKit/SenTestingKit.h>
-
-#define HC_SHORTHAND
-#import <OCHamcrestIOS/OCHamcrestIOS.h>
-
-#define MOCKITO_SHORTHAND
-#import <OCMockitoIOS/OCMockitoIOS.h>
+#import <GHUnitIOS/GHUnit.h>
 
 
-@interface XBAMPTypeTests : SenTestCase
+@interface XBAMPTypeTests : GHTestCase
 @end
 
 @implementation XBAMPTypeTests
@@ -43,7 +33,7 @@
     NSData *data = [ampInteger encodeObject:number];
     
     NSString *string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    assertThat(string, is(equalTo(@"-6")));
+    GHAssertEqualStrings(string, @"-6", nil);
 }
 
 - (void)testIntegerDecoding
@@ -53,7 +43,7 @@
 
     NSNumber *number = [ampInteger decodeData:data];
     
-    assertThat(number, is(equalTo(@2703)));
+    GHAssertEqualObjects(number, @2703, nil);
 }
 
 - (void)testBytesEncoding
@@ -66,10 +56,11 @@
     NSData *encodedData = [ampBytes encodeObject:data];
     unsigned char *encodedBytes = (unsigned char *)encodedData.bytes;
     
-    assert(length == encodedData.length);
+    GHAssertEquals(length, encodedData.length, nil);
     
     for (int i = 0; i < encodedData.length; ++i) {
         assert(encodedBytes[i] == bytes[i]);
+        GHAssertEquals(encodedBytes[i], bytes[i], nil);
     }
 }
 
@@ -80,7 +71,7 @@
 
     NSData *decodedData = [ampBytes decodeData:data];
     
-    assertThat(data, is(equalTo(decodedData)));
+    GHAssertEqualObjects(data, decodedData, nil);
 }
 
 - (void)testStringEncoding
@@ -89,7 +80,7 @@
     XBAMPString *ampString = [[XBAMPString alloc] init];
     NSData *data = [ampString encodeObject:string];
     
-    assertThat(data, is(equalTo([string dataUsingEncoding:NSUTF8StringEncoding])));
+    GHAssertEqualObjects(data, [string dataUsingEncoding:NSUTF8StringEncoding], nil);
 }
 
 - (void)testStringDecoding
@@ -98,7 +89,7 @@
     XBAMPString *ampString = [[XBAMPString alloc] init];
     NSString *decodedString = [ampString decodeData:[string dataUsingEncoding:NSUTF8StringEncoding]];
     
-    assertThat(string, is(equalTo(decodedString)));
+    GHAssertEqualStrings(string, decodedString, nil);
 }
 
 - (void)testBooleanEncoding
@@ -107,12 +98,12 @@
     NSData *data = [ampBoolean encodeObject:@YES];
     
     NSString *string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    assertThat(string, is(equalTo(@"True")));
+    GHAssertEqualStrings(string, @"True", nil);
     
     data = [ampBoolean encodeObject:@NO];
     
     string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-    assertThat(string, is(equalTo(@"False")));
+    GHAssertEqualStrings(string, @"False", nil);
 }
 
 - (void)testBooleanDecoding
@@ -120,11 +111,11 @@
     NSData *data = [@"False" dataUsingEncoding:NSUTF8StringEncoding];
     XBAMPBoolean *ampBoolean = [[XBAMPBoolean alloc] init];
     NSNumber *number = [ampBoolean decodeData:data];
-    assert(number.boolValue == NO);
+    GHAssertFalse(number.boolValue, nil);
     
     data = [@"True" dataUsingEncoding:NSUTF8StringEncoding];
     number = [ampBoolean decodeData:data];
-    assert(number.boolValue == YES);
+    GHAssertTrue(number.boolValue, nil);
 }
 
 - (void)testFloatEncoding
@@ -135,7 +126,7 @@
     for (NSNumber *number in numbers) {
         NSData *data = [ampFloat encodeObject:number];
         NSString *string = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-        assertThat([number description], is(equalTo(string)));
+        GHAssertEqualStrings(number.description, string, nil);
     }
 }
 
@@ -147,7 +138,7 @@
     for (NSString *string in strings) {
         NSData *data = [string dataUsingEncoding:NSUTF8StringEncoding];
         NSNumber *number = [ampFloat decodeData:data];
-        assert(number.doubleValue == string.doubleValue);
+        GHAssertEquals(number.doubleValue, string.doubleValue, nil);
     }
 }
 
@@ -161,7 +152,7 @@
     formatter.dateFormat = @"yyyy-MM-dd'T'HH:mm:ss.SSSSZ";
     NSString *dateString = [formatter stringFromDate:date];
     
-    assertThat(data, is(equalTo([dateString dataUsingEncoding:NSUTF8StringEncoding])));
+    GHAssertEqualObjects(data, [dateString dataUsingEncoding:NSUTF8StringEncoding], nil);
 }
 
 - (void)testDateDecoding
@@ -174,7 +165,7 @@
     formatter.dateFormat = @"yyyy-MM-dd'T'HH:mm:ss.SSSSSZ";
     NSDate *dateFromString = [formatter dateFromString:string];
     
-    assertThat(date, is(equalTo(dateFromString)));
+    GHAssertEqualObjects(date, dateFromString, nil);
 }
 
 - (void)testArrayEncoding
@@ -192,7 +183,7 @@
         [data getBytes:&length range:NSMakeRange(i, sizeof(unsigned short))];
         assert(numberData.length == length);
         NSData *arrayNumberData = [data subdataWithRange:NSMakeRange(i + sizeof(unsigned short), length)];
-        assertThat(numberData, is(equalTo(arrayNumberData)));
+        GHAssertEqualObjects(numberData, arrayNumberData, nil);
         i += length + sizeof(unsigned short);
     }
 }
@@ -205,8 +196,9 @@
     XBAMPInteger *ampInteger = [[XBAMPInteger alloc] init];
     XBAMPArray *ampArray = [[XBAMPArray alloc] initWithElementType:ampInteger];
     NSArray *array = [ampArray decodeData:data];
+    NSArray *anotherArray = @[@23, @26, @(-458)];
     
-    assertThat(array, is(equalTo(@[@23, @26, @(-458)])));
+    GHAssertEqualObjects(array, anotherArray, nil);
 }
 
 - (void)testDictionaryEncoding
@@ -221,14 +213,14 @@
         [data getBytes:&length range:NSMakeRange(i, sizeof(length))];
         NSData *keyData = [data subdataWithRange:NSMakeRange(i + sizeof(length), length)];
         NSString *key = [[NSString alloc] initWithData:keyData encoding:NSUTF8StringEncoding];
-        assert(dictionary[key] != nil);
+        GHAssertNotNil(dictionary[key], nil);
         i += length + sizeof(length);
         
         [data getBytes:&length range:NSMakeRange(i, sizeof(length))];
         NSData *valueData = [data subdataWithRange:NSMakeRange(i + sizeof(length), length)];
         XBAMPType *ampType = ampDictionary.elementTypes[key];
         id value = [ampType decodeData:valueData];
-        assertThat(value, is(equalTo(dictionary[key])));
+        GHAssertEqualObjects(value, dictionary[key], nil);
         i += length + sizeof(length);
     }
 }
@@ -240,8 +232,9 @@
     
     XBAMPDictionary *ampDictionary = [[XBAMPDictionary alloc] initWithElementTypes:@{@"name": [[XBAMPString alloc] init], @"nick": [[XBAMPString alloc] init], @"age": [[XBAMPInteger alloc] init], @"antichrist": [[XBAMPBoolean alloc] init]}];
     NSDictionary *dictionary = [ampDictionary decodeData:data];
+    NSDictionary *anotherDictionary = @{@"name": @"Nilson Souto", @"nick": @"xissburg", @"age": @26, @"antichrist": @YES};
     
-    assertThat(dictionary, is(equalTo(@{@"name": @"Nilson Souto", @"nick": @"xissburg", @"age": @26, @"antichrist": @YES})));
+    GHAssertEqualObjects(dictionary, anotherDictionary, nil);
 }
 
 @end
