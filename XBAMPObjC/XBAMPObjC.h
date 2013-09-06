@@ -18,7 +18,6 @@
 - (id)initWithSocket:(GCDAsyncSocket *)socket;
 - (void)connectToHost:(NSString *)hostname port:(NSUInteger)port success:(void (^)(void))success failure:(void (^)(NSError *error))failure;
 - (void)closeConnection;
-- (NSData *)dataToCallCommand:(XBAMPCommand *)command withParameters:(NSDictionary *)parameters askTag:(NSUInteger)askTag;
 - (void)callCommand:(XBAMPCommand *)command withParameters:(NSDictionary *)parameters success:(void (^)(NSDictionary *response))success failure:(void (^)(NSError *error))failure;
 - (void)handleCommand:(XBAMPCommand *)command withBlock:(NSDictionary *(^)(NSDictionary *parameters))block;
 
