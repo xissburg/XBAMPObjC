@@ -26,6 +26,12 @@ static char kConnectBlockKey;
 static char kDisconnectBlockKey;
 
 /**
+ Key used to obtain and store the socketId out of a GCDAsyncSocket instance. This is not nil only for sockets provided in the 
+ socket:didAcceptNewSocket: method.
+ */
+static char kSocketIdKey;
+
+/**
  Tags for uniquely identifying reads and writes in the AsyncSocket delegate methods.
  */
 enum {
@@ -65,6 +71,7 @@ enum {
 @interface XBAMPObjC ()
 
 @property (nonatomic, strong) GCDAsyncSocket *socket;
+@property (nonatomic, strong) NSMutableDictionary *clientSockets;
 @property (nonatomic, assign) NSUInteger tagCounter;
 @property (nonatomic, assign) NSUInteger currentCallTag;
 @property (nonatomic, copy) NSData *askData;
@@ -91,6 +98,7 @@ enum {
     self = [super init];
     if (self) {
         self.socket = socket;
+        self.clientSockets = [[NSMutableDictionary alloc] init];
         self.tagCounter = 0;
         self.askData = [kAMPAskKey dataUsingEncoding:NSUTF8StringEncoding];
         self.commandData = [kAMPCommandKey dataUsingEncoding:NSUTF8StringEncoding];
@@ -122,12 +130,28 @@ enum {
     }
 }
 
+- (BOOL)acceptOnPort:(NSUInteger)port error:(NSError *__autoreleasing *)errPtr
+{
+    return [self.socket acceptOnPort:port error:errPtr];
+}
+
 - (void)closeConnection
 {
     [self.socket disconnect];
 }
 
 - (void)callCommand:(XBAMPCommand *)command withParameters:(NSDictionary *)parameters success:(void (^)(NSDictionary *))success failure:(void (^)(NSError *))failure
+{
+    [self callCommand:command withParameters:parameters socket:self.socket success:success failure:failure];
+}
+
+- (void)callCommand:(XBAMPCommand *)command withParameters:(NSDictionary *)parameters socketId:(NSString *)socketId success:(void (^)(NSDictionary *response))success failure:(void (^)(NSError *error))failure
+{
+    GCDAsyncSocket *socket = self.clientSockets[socketId];
+    [self callCommand:command withParameters:parameters socket:socket success:success failure:failure];
+}
+
+- (void)callCommand:(XBAMPCommand *)command withParameters:(NSDictionary *)parameters socket:(GCDAsyncSocket *)socket success:(void (^)(NSDictionary *response))success failure:(void (^)(NSError *error))failure
 {
     NSData *data = [self dataToCallCommand:command withParameters:parameters askTag:self.tagCounter];
     
@@ -137,10 +161,10 @@ enum {
         self.tagCounter++;
     }
     
-    [self.socket writeData:data withTimeout:-1 tag:kWriteDataTag];
+    [socket writeData:data withTimeout:-1 tag:kWriteDataTag];
 }
 
-- (void)handleCommand:(XBAMPCommand *)command withBlock:(NSDictionary *(^)(NSDictionary *))block
+- (void)handleCommand:(XBAMPCommand *)command withBlock:(XBAMPCommandHandler)block
 {
     self.commandsDictionary[command.name] = command;
     self.handlerBlocksDictionary[command.name] = [block copy];
@@ -155,7 +179,7 @@ enum {
     [mutableData appendData:data];
 }
 
-- (void)processPacketDictionary:(NSDictionary *)dictionary
+- (void)processPacketDictionary:(NSDictionary *)dictionary forSocket:(GCDAsyncSocket *)socket
 {
     if (dictionary[kAMPCommandKey]) {
         NSData *commandData = dictionary[kAMPCommandKey];
@@ -173,12 +197,14 @@ enum {
             parametersDictionary[key] = value;
         }
         
-        NSDictionary *(^block)(NSDictionary *) = self.handlerBlocksDictionary[commandName];
-        NSDictionary *response = block(parametersDictionary);
+        XBAMPCommandHandler block = self.handlerBlocksDictionary[commandName];
+        NSString *socketId = objc_getAssociatedObject(socket, &kSocketIdKey);
+        NSDictionary *response = block(parametersDictionary, socketId);
+        
         if (command.requiresAnswer) {
             NSData *askData = dictionary[kAMPAskKey];
             NSString *ask = [[NSString alloc] initWithData:askData encoding:NSUTF8StringEncoding];
-            [self sendResponse:response forTag:ask.integerValue command:command];
+            [self sendResponse:response forTag:ask.integerValue socket:socket command:command];
         }
     }
     else if (dictionary[kAMPAnswerKey]) {
@@ -238,6 +264,17 @@ enum {
 
 - (void)sendResponse:(NSDictionary *)response forTag:(NSUInteger)tag command:(XBAMPCommand *)command
 {
+    [self sendResponse:response forTag:tag socket:self.socket command:command];
+}
+
+- (void)sendResponse:(NSDictionary *)response forTag:(NSUInteger)tag socketId:(NSString *)socketId command:(XBAMPCommand *)command
+{
+    GCDAsyncSocket *socket = self.clientSockets[socketId];
+    [self sendResponse:response forTag:tag socket:socket command:command];
+}
+
+- (void)sendResponse:(NSDictionary *)response forTag:(NSUInteger)tag socket:(GCDAsyncSocket *)socket command:(XBAMPCommand *)command
+{
     NSMutableData *mutableData = [[NSMutableData alloc] init];
     [self appendLengthAndData:self.answerData toMutableData:mutableData];
     
@@ -255,7 +292,7 @@ enum {
     unsigned short zero = 0;
     [mutableData appendBytes:&zero length:sizeof(unsigned short)];
     
-    [self.socket writeData:mutableData withTimeout:-1 tag:kWriteDataTag];
+    [socket writeData:mutableData withTimeout:-1 tag:kWriteDataTag];
 }
 
 - (NSData *)dataToCallCommand:(XBAMPCommand *)command withParameters:(NSDictionary *)parameters askTag:(NSUInteger)askTag
@@ -310,6 +347,16 @@ enum {
 
 #pragma mark - GCDAsyncSocketDelegate
 
+- (void)socket:(GCDAsyncSocket *)sock didAcceptNewSocket:(GCDAsyncSocket *)newSocket
+{
+    NSString *socketId = [[NSUUID UUID] UUIDString];
+    self.clientSockets[socketId] = newSocket;
+    objc_setAssociatedObject(newSocket, &kSocketIdKey, socketId, OBJC_ASSOCIATION_COPY);
+    if (self.didAcceptNewSocket) {
+        self.didAcceptNewSocket(socketId);
+    }
+}
+
 - (void)socket:(GCDAsyncSocket *)sock didConnectToHost:(NSString *)host port:(uint16_t)port
 {
     void (^success)(void) = objc_getAssociatedObject(sock, &kConnectBlockKey);
@@ -318,7 +365,7 @@ enum {
     }
     
     // Perform the first read to initiate the continuous chain of reads
-    [self.socket readDataToLength:sizeof(unsigned short) withTimeout:-1 tag:kReadAMPKeyLengthTag];
+    [sock readDataToLength:sizeof(unsigned short) withTimeout:-1 tag:kReadAMPKeyLengthTag];
 }
 
 - (void)socket:(GCDAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag
@@ -329,19 +376,19 @@ enum {
         length = ntohs(length);
         
         if (tag == kReadAMPKeyLengthTag && length == 0) {
-            [self processPacketDictionary:self.currentPacketDictionary];
+            [self processPacketDictionary:self.currentPacketDictionary forSocket:sock];
             self.currentPacketDictionary = nil;
-            [self.socket readDataToLength:sizeof(unsigned short) withTimeout:-1 tag:kReadAMPKeyLengthTag];
+            [sock readDataToLength:sizeof(unsigned short) withTimeout:-1 tag:kReadAMPKeyLengthTag];
         }
         else {
-            [self.socket readDataToLength:length withTimeout:-1 tag:tag == kReadAMPKeyLengthTag? kReadAMPKeyTag: kReadAMPValueTag];
+            [sock readDataToLength:length withTimeout:-1 tag:tag == kReadAMPKeyLengthTag? kReadAMPKeyTag: kReadAMPValueTag];
         }
     }
     else if (tag == kReadAMPKeyTag) {
         self.currentKey = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
         
-        // Read the length of the next valueI men
-        [self.socket readDataToLength:sizeof(unsigned short) withTimeout:-1 tag:kReadAMPValueLengthTag];
+        // Read the length of the next value
+        [sock readDataToLength:sizeof(unsigned short) withTimeout:-1 tag:kReadAMPValueLengthTag];
     }
     else if (tag == kReadAMPValueTag) {
         if (self.currentPacketDictionary == nil) {
@@ -350,7 +397,7 @@ enum {
         self.currentPacketDictionary[self.currentKey] = data;
         
         // Read the length of the next key
-        [self.socket readDataToLength:sizeof(unsigned short) withTimeout:-1 tag:kReadAMPKeyLengthTag];
+        [sock readDataToLength:sizeof(unsigned short) withTimeout:-1 tag:kReadAMPKeyLengthTag];
     }
 }
 
@@ -365,7 +412,8 @@ enum {
 - (void)socketDidCloseReadStream:(GCDAsyncSocket *)sock
 {
     if (self.didCloseConnection) {
-        self.didCloseConnection();
+        NSString *socketId = objc_getAssociatedObject(sock, &kSocketIdKey);
+        self.didCloseConnection(socketId);
     }
 }
 

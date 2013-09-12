@@ -8,6 +8,10 @@
 
 #import <Foundation/Foundation.h>
 
+/**
+ The XBAMPType class allows you to encode and decode objects to be used with AMP. You can encode an object and obtain a NSData instance to 
+ be sent over the wire and you can also decode a NSData instance and obtain the object back.
+ */
 @interface XBAMPType : NSObject
 
 /**

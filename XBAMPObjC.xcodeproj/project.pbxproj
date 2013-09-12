@@ -27,7 +27,6 @@
 		1B256E8217D783F800CF93F6 /* XBAMPObjCTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B256BBC17D4708700CF93F6 /* XBAMPObjCTests.m */; };
 		1B256E8417D7A2B500CF93F6 /* OCMockitoIOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1B256E8317D7A2B500CF93F6 /* OCMockitoIOS.framework */; };
 		1B256E8617D7A2D600CF93F6 /* OCHamcrestIOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1B256E8517D7A2D600CF93F6 /* OCHamcrestIOS.framework */; };
-		1B256E8817D7A37200CF93F6 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1B256E8717D7A37200CF93F6 /* SenTestingKit.framework */; settings = {ATTRIBUTES = (Weak, ); }; };
 		1B256E8917D9209F00CF93F6 /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B256C4517D5706200CF93F6 /* GCDAsyncSocket.m */; };
 		1B256E8A17D920A200CF93F6 /* GCDAsyncUdpSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B256C4717D5706200CF93F6 /* GCDAsyncUdpSocket.m */; };
 		1B256E9717D9212C00CF93F6 /* XBAMPType.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B30C6FF17C84A4E00BB414A /* XBAMPType.m */; };
@@ -144,7 +143,6 @@
 			files = (
 				1B256EA617D921E500CF93F6 /* CFNetwork.framework in Frameworks */,
 				1B256EA517D921D800CF93F6 /* Security.framework in Frameworks */,
-				1B256E8817D7A37200CF93F6 /* SenTestingKit.framework in Frameworks */,
 				1B256E7F17D7091600CF93F6 /* QuartzCore.framework in Frameworks */,
 				1B256E7D17D7090900CF93F6 /* CoreMedia.framework in Frameworks */,
 				1B256E5F17D703E200CF93F6 /* UIKit.framework in Frameworks */,
@@ -613,6 +611,7 @@
 				1B256E7717D703E300CF93F6 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		1BC2258B17C6656C006C2D6C /* Build configuration list for PBXProject "XBAMPObjC" */ = {
 			isa = XCConfigurationList;
