@@ -364,6 +364,9 @@ enum {
         success();
     }
     
+    objc_setAssociatedObject(sock, &kConnectBlockKey, nil, OBJC_ASSOCIATION_COPY);
+    objc_setAssociatedObject(sock, &kDisconnectBlockKey, nil, OBJC_ASSOCIATION_COPY);
+
     // Perform the first read to initiate the continuous chain of reads
     [sock readDataToLength:sizeof(unsigned short) withTimeout:-1 tag:kReadAMPKeyLengthTag];
 }
