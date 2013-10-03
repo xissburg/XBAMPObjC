@@ -1,5 +1,5 @@
 //
-//  XBAMPObjC.h
+//  XBAMP.h
 //  XBAMPObjC
 //
 //  Created by xissburg on 8/22/13.
@@ -14,17 +14,18 @@
  The command handler block.
  
  @param parameters A dictionary that maps strings (parameter names) to objects.
- @param socketId The id of the socket that the command should be handled for. If the XBAMPObjC instance is a client, then this value should be nil.
+ @param socketId The id of the socket that the command should be handled for. If the XBAMP instance is a client, then this value should be nil.
+ @param ampError If the invocation of the command fails, it should assign a XBAMPError instance to this parameter and return nil.
  
- @return The response dictionary.
+ @return The response dictionary, or nil in case of an error.
  */
-typedef NSDictionary *(^XBAMPCommandHandler)(NSDictionary *parameters, NSString *socketId);
+typedef NSDictionary *(^XBAMPCommandHandler)(NSDictionary *parameters, NSString *socketId, XBAMPError **ampError);
 
 /**
- The XBAMPObjC class is capable of connecting to an AMP server or to accept connections from AMP clients. After connected, it can send 
+ The XBAMP class is capable of connecting to an AMP server or to accept connections from AMP clients. After connected, it can send
  and receive remote commands.
  */
-@interface XBAMPObjC : NSObject <GCDAsyncSocketDelegate>
+@interface XBAMP : NSObject <GCDAsyncSocketDelegate>
 
 /**
  Returns whether this instance is connected to a server or whether it is accepting connections.
@@ -46,7 +47,7 @@ typedef NSDictionary *(^XBAMPCommandHandler)(NSDictionary *parameters, NSString 
  
  @param socket The socket this instance should use to communicate with the other end.
  
- @return A XBAMPObjC instance initialized with the given socket.
+ @return A XBAMP instance initialized with the given socket.
  */
 - (id)initWithSocket:(GCDAsyncSocket *)socket;
 
@@ -84,10 +85,10 @@ typedef NSDictionary *(^XBAMPCommandHandler)(NSDictionary *parameters, NSString 
     that maps names to objects according to the command's responseTypes
  @param failure A block that is invoked on failure.
  */
-- (void)callCommand:(XBAMPCommand *)command withParameters:(NSDictionary *)parameters success:(void (^)(NSDictionary *response))success failure:(void (^)(NSError *error))failure;
+- (void)callCommand:(XBAMPCommand *)command withParameters:(NSDictionary *)parameters success:(void (^)(NSDictionary *response))success failure:(void (^)(XBAMPError *ampError))failure;
 
 /**
- Calls a command on the other end. This method is intended to be called on clients, that is, if the XBAMPObjC instance is acting as a server.
+ Calls a command on the other end. This method is intended to be called on clients, that is, if the XBAMP instance is acting as a server.
  
  @param command A command that specifies the parameter types, response types, possible errors, among other things.
  @param parameters A dictionary that maps parameter names to objects.
@@ -96,7 +97,7 @@ typedef NSDictionary *(^XBAMPCommandHandler)(NSDictionary *parameters, NSString 
     that maps names to objects according to the command's responseTypes
  @param failure A block that is invoked on failure.
  */
-- (void)callCommand:(XBAMPCommand *)command withParameters:(NSDictionary *)parameters socketId:(NSString *)socketId success:(void (^)(NSDictionary *response))success failure:(void (^)(NSError *error))failure;
+- (void)callCommand:(XBAMPCommand *)command withParameters:(NSDictionary *)parameters socketId:(NSString *)socketId success:(void (^)(NSDictionary *response))success failure:(void (^)(XBAMPError *ampError))failure;
 
 /**
  Assigns a block to handle a given command.

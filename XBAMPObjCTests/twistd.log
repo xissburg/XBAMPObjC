@@ -71,3 +71,17 @@
 2013-09-13 18:32:59-0700 [-] Starting factory <server.ChatFactory instance at 0x10abce248>
 2013-09-13 18:33:49-0700 [server.ChatFactory] ChatProtocol connection established (HOST:IPv4Address(TCP, '127.0.0.1', 25683) PEER:IPv4Address(TCP, '127.0.0.1', 59114))
 2013-09-13 18:44:40-0700 [server.ChatFactory] ChatProtocol connection established (HOST:IPv4Address(TCP, '127.0.0.1', 25683) PEER:IPv4Address(TCP, '127.0.0.1', 59248))
+2013-10-03 11:25:26-0300 [-] Log opened.
+2013-10-03 11:25:26-0300 [-] twistd 13.1.0 (/usr/bin/python 2.7.2) starting up.
+2013-10-03 11:25:26-0300 [-] reactor class: twisted.internet.selectreactor.SelectReactor.
+2013-10-03 11:25:26-0300 [-] ChatFactory starting on 25683
+2013-10-03 11:25:26-0300 [-] Starting factory <server.ChatFactory instance at 0x101ae5d88>
+2013-10-03 11:25:34-0300 [server.ChatFactory] ChatProtocol connection established (HOST:IPv4Address(TCP, '127.0.0.1', 25683) PEER:IPv4Address(TCP, '127.0.0.1', 53555))
+2013-10-03 17:02:13-0300 [server.ChatFactory] ChatProtocol connection established (HOST:IPv4Address(TCP, '127.0.0.1', 25683) PEER:IPv4Address(TCP, '127.0.0.1', 58475))
+2013-10-03 17:04:52-0300 [server.ChatFactory] ChatProtocol connection established (HOST:IPv4Address(TCP, '127.0.0.1', 25683) PEER:IPv4Address(TCP, '127.0.0.1', 58486))
+2013-10-03 17:06:47-0300 [server.ChatFactory] ChatProtocol connection established (HOST:IPv4Address(TCP, '127.0.0.1', 25683) PEER:IPv4Address(TCP, '127.0.0.1', 58496))
+2013-10-03 17:15:38-0300 [server.ChatFactory] ChatProtocol connection established (HOST:IPv4Address(TCP, '127.0.0.1', 25683) PEER:IPv4Address(TCP, '127.0.0.1', 58578))
+2013-10-03 17:16:03-0300 [server.ChatFactory] ChatProtocol connection established (HOST:IPv4Address(TCP, '127.0.0.1', 25683) PEER:IPv4Address(TCP, '127.0.0.1', 58584))
+2013-10-03 17:18:32-0300 [server.ChatFactory] ChatProtocol connection established (HOST:IPv4Address(TCP, '127.0.0.1', 25683) PEER:IPv4Address(TCP, '127.0.0.1', 58600))
+2013-10-03 17:19:06-0300 [server.ChatFactory] ChatProtocol connection established (HOST:IPv4Address(TCP, '127.0.0.1', 25683) PEER:IPv4Address(TCP, '127.0.0.1', 58606))
+2013-10-03 17:21:41-0300 [server.ChatFactory] ChatProtocol connection established (HOST:IPv4Address(TCP, '127.0.0.1', 25683) PEER:IPv4Address(TCP, '127.0.0.1', 58617))

@@ -21,6 +21,11 @@
     return self;
 }
 
+- (NSString *)description
+{
+    return [NSString stringWithFormat:@"Code: %d:%@, Description: %@", self.code, self.codeString, self.errorDescription];
+}
+
 @end
 
 NSString *const XBAMPErrorDomain = @"XBAMPErrorDomain";

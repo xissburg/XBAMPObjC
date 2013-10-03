@@ -24,7 +24,7 @@
 		1B256E7F17D7091600CF93F6 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1B256E7E17D7091600CF93F6 /* QuartzCore.framework */; };
 		1B256E8017D783F000CF93F6 /* XBAMPTypeTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B30C6FC17C7EB7200BB414A /* XBAMPTypeTests.m */; };
 		1B256E8117D783F400CF93F6 /* XBAMPCommandTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B4EC9D217C6750A000DA622 /* XBAMPCommandTests.m */; };
-		1B256E8217D783F800CF93F6 /* XBAMPObjCTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B256BBC17D4708700CF93F6 /* XBAMPObjCTests.m */; };
+		1B256E8217D783F800CF93F6 /* XBAMPTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B256BBC17D4708700CF93F6 /* XBAMPTests.m */; };
 		1B256E8417D7A2B500CF93F6 /* OCMockitoIOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1B256E8317D7A2B500CF93F6 /* OCMockitoIOS.framework */; };
 		1B256E8617D7A2D600CF93F6 /* OCHamcrestIOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1B256E8517D7A2D600CF93F6 /* OCHamcrestIOS.framework */; };
 		1B256E8917D9209F00CF93F6 /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B256C4517D5706200CF93F6 /* GCDAsyncSocket.m */; };
@@ -40,7 +40,7 @@
 		1B256E9F17D9212C00CF93F6 /* XBAMPDictionary.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B33A07817CA371A0047FB30 /* XBAMPDictionary.m */; };
 		1B256EA017D9212C00CF93F6 /* XBAMPError.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B256E5617D67D2000CF93F6 /* XBAMPError.m */; };
 		1B256EA117D9212C00CF93F6 /* XBAMPCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B30C70517C8534400BB414A /* XBAMPCommand.m */; };
-		1B256EA217D9212C00CF93F6 /* XBAMPObjC.m in Sources */ = {isa = PBXBuildFile; fileRef = 1BC2259A17C6656C006C2D6C /* XBAMPObjC.m */; };
+		1B256EA217D9212C00CF93F6 /* XBAMP.m in Sources */ = {isa = PBXBuildFile; fileRef = 1BC2259A17C6656C006C2D6C /* XBAMP.m */; };
 		1B256EA317D921B700CF93F6 /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B256C4517D5706200CF93F6 /* GCDAsyncSocket.m */; };
 		1B256EA417D921BA00CF93F6 /* GCDAsyncUdpSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B256C4717D5706200CF93F6 /* GCDAsyncUdpSocket.m */; };
 		1B256EA517D921D800CF93F6 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1B256E2F17D57A6400CF93F6 /* Security.framework */; };
@@ -54,8 +54,8 @@
 		1B33A07617CA36E10047FB30 /* XBAMPArray.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B33A07517CA36E10047FB30 /* XBAMPArray.m */; };
 		1B33A07917CA371A0047FB30 /* XBAMPDictionary.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B33A07817CA371A0047FB30 /* XBAMPDictionary.m */; };
 		1BC2259417C6656C006C2D6C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1BC2259317C6656C006C2D6C /* Foundation.framework */; };
-		1BC2259917C6656C006C2D6C /* XBAMPObjC.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1BC2259817C6656C006C2D6C /* XBAMPObjC.h */; };
-		1BC2259B17C6656C006C2D6C /* XBAMPObjC.m in Sources */ = {isa = PBXBuildFile; fileRef = 1BC2259A17C6656C006C2D6C /* XBAMPObjC.m */; };
+		1BC2259917C6656C006C2D6C /* XBAMP.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1BC2259817C6656C006C2D6C /* XBAMP.h */; };
+		1BC2259B17C6656C006C2D6C /* XBAMP.m in Sources */ = {isa = PBXBuildFile; fileRef = 1BC2259A17C6656C006C2D6C /* XBAMP.m */; };
 		1BCFE3D017C93ED500EE96D3 /* XBAMPFloat.m in Sources */ = {isa = PBXBuildFile; fileRef = 1BCFE3CF17C93ED500EE96D3 /* XBAMPFloat.m */; };
 		1BCFE3D317C9550700EE96D3 /* XBAMPDate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1BCFE3D217C9550700EE96D3 /* XBAMPDate.m */; };
 /* End PBXBuildFile section */
@@ -67,14 +67,14 @@
 			dstPath = "include/${PRODUCT_NAME}";
 			dstSubfolderSpec = 16;
 			files = (
-				1BC2259917C6656C006C2D6C /* XBAMPObjC.h in CopyFiles */,
+				1BC2259917C6656C006C2D6C /* XBAMP.h in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		1B256BBC17D4708700CF93F6 /* XBAMPObjCTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XBAMPObjCTests.m; sourceTree = "<group>"; };
+		1B256BBC17D4708700CF93F6 /* XBAMPTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XBAMPTests.m; sourceTree = "<group>"; };
 		1B256C4417D5706200CF93F6 /* GCDAsyncSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDAsyncSocket.h; sourceTree = "<group>"; };
 		1B256C4517D5706200CF93F6 /* GCDAsyncSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GCDAsyncSocket.m; sourceTree = "<group>"; };
 		1B256C4617D5706200CF93F6 /* GCDAsyncUdpSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GCDAsyncUdpSocket.h; sourceTree = "<group>"; };
@@ -125,8 +125,8 @@
 		1BC2259017C6656C006C2D6C /* libXBAMPObjC.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libXBAMPObjC.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		1BC2259317C6656C006C2D6C /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		1BC2259717C6656C006C2D6C /* XBAMPObjC-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "XBAMPObjC-Prefix.pch"; sourceTree = "<group>"; };
-		1BC2259817C6656C006C2D6C /* XBAMPObjC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XBAMPObjC.h; sourceTree = "<group>"; };
-		1BC2259A17C6656C006C2D6C /* XBAMPObjC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XBAMPObjC.m; sourceTree = "<group>"; };
+		1BC2259817C6656C006C2D6C /* XBAMP.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = XBAMP.h; sourceTree = "<group>"; };
+		1BC2259A17C6656C006C2D6C /* XBAMP.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = XBAMP.m; sourceTree = "<group>"; };
 		1BC225A417C6656C006C2D6C /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		1BC225AC17C6656C006C2D6C /* XBAMPObjCTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "XBAMPObjCTests-Info.plist"; sourceTree = "<group>"; };
 		1BC225AE17C6656C006C2D6C /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -287,8 +287,8 @@
 				1B256E5617D67D2000CF93F6 /* XBAMPError.m */,
 				1B30C70417C8534400BB414A /* XBAMPCommand.h */,
 				1B30C70517C8534400BB414A /* XBAMPCommand.m */,
-				1BC2259817C6656C006C2D6C /* XBAMPObjC.h */,
-				1BC2259A17C6656C006C2D6C /* XBAMPObjC.m */,
+				1BC2259817C6656C006C2D6C /* XBAMP.h */,
+				1BC2259A17C6656C006C2D6C /* XBAMP.m */,
 				1BC2259617C6656C006C2D6C /* Supporting Files */,
 			);
 			path = XBAMPObjC;
@@ -307,7 +307,7 @@
 			children = (
 				1B30C6FC17C7EB7200BB414A /* XBAMPTypeTests.m */,
 				1B4EC9D217C6750A000DA622 /* XBAMPCommandTests.m */,
-				1B256BBC17D4708700CF93F6 /* XBAMPObjCTests.m */,
+				1B256BBC17D4708700CF93F6 /* XBAMPTests.m */,
 				1BC225AB17C6656C006C2D6C /* Supporting Files */,
 			);
 			path = XBAMPObjCTests;
@@ -410,7 +410,7 @@
 				1B256E6E17D703E300CF93F6 /* AppDelegate.m in Sources */,
 				1B256E8017D783F000CF93F6 /* XBAMPTypeTests.m in Sources */,
 				1B256E8117D783F400CF93F6 /* XBAMPCommandTests.m in Sources */,
-				1B256E8217D783F800CF93F6 /* XBAMPObjCTests.m in Sources */,
+				1B256E8217D783F800CF93F6 /* XBAMPTests.m in Sources */,
 				1B256E9717D9212C00CF93F6 /* XBAMPType.m in Sources */,
 				1B256E9817D9212C00CF93F6 /* XBAMPInteger.m in Sources */,
 				1B256E9917D9212C00CF93F6 /* XBAMPBytes.m in Sources */,
@@ -422,7 +422,7 @@
 				1B256E9F17D9212C00CF93F6 /* XBAMPDictionary.m in Sources */,
 				1B256EA017D9212C00CF93F6 /* XBAMPError.m in Sources */,
 				1B256EA117D9212C00CF93F6 /* XBAMPCommand.m in Sources */,
-				1B256EA217D9212C00CF93F6 /* XBAMPObjC.m in Sources */,
+				1B256EA217D9212C00CF93F6 /* XBAMP.m in Sources */,
 				1B256EA317D921B700CF93F6 /* GCDAsyncSocket.m in Sources */,
 				1B256EA417D921BA00CF93F6 /* GCDAsyncUdpSocket.m in Sources */,
 			);
@@ -432,7 +432,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1BC2259B17C6656C006C2D6C /* XBAMPObjC.m in Sources */,
+				1BC2259B17C6656C006C2D6C /* XBAMP.m in Sources */,
 				1B30C70017C84A4E00BB414A /* XBAMPType.m in Sources */,
 				1B30C70317C8501D00BB414A /* XBAMPInteger.m in Sources */,
 				1B30C70617C8534400BB414A /* XBAMPCommand.m in Sources */,

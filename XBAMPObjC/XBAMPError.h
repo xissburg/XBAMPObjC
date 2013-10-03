@@ -8,6 +8,8 @@
 
 #import <Foundation/Foundation.h>
 
+#define kXBAMPUnknownErrorCode 0x7fffffff
+
 @interface XBAMPError : NSObject
 
 @property (nonatomic, readonly) int code;

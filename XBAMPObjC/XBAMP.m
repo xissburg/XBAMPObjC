@@ -1,12 +1,12 @@
 //
-//  XBAMPObjC.m
+//  XBAMP.m
 //  XBAMPObjC
 //
 //  Created by xissburg on 8/22/13.
 //  Copyright (c) 2013 xissburg. All rights reserved.
 //
 
-#import "XBAMPObjC.h"
+#import "XBAMP.h"
 #import <objc/runtime.h>
 
 /**
@@ -49,13 +49,13 @@ enum {
 
 @property (nonatomic, strong) XBAMPCommand *command;
 @property (nonatomic, strong) void (^success)(NSDictionary *);
-@property (nonatomic, strong) void (^failure)(NSError *);
+@property (nonatomic, strong) void (^failure)(XBAMPError *);
 
 @end
 
 @implementation XBAMPTagContext
 
-- (id)initWithCommand:(XBAMPCommand *)command success:(void (^)(NSDictionary *response))success failure:(void (^)(NSError *error))failure
+- (id)initWithCommand:(XBAMPCommand *)command success:(void (^)(NSDictionary *response))success failure:(void (^)(XBAMPError *ampError))failure
 {
     self = [super init];
     if (self) {
@@ -68,16 +68,18 @@ enum {
 
 @end
 
-@interface XBAMPObjC ()
+@interface XBAMP ()
 
 @property (nonatomic, strong) GCDAsyncSocket *socket;
 @property (nonatomic, strong) NSMutableDictionary *clientSockets;
 @property (nonatomic, assign) NSUInteger tagCounter;
 @property (nonatomic, assign) NSUInteger currentCallTag;
-@property (nonatomic, copy) NSData *askData;
-@property (nonatomic, copy) NSData *commandData;
-@property (nonatomic, copy) NSData *answerData;
-@property (nonatomic, copy) NSData *errorData;
+@property (nonatomic, copy) NSData *askKeyData;
+@property (nonatomic, copy) NSData *commandKeyData;
+@property (nonatomic, copy) NSData *answerKeyData;
+@property (nonatomic, copy) NSData *errorKeyData;
+@property (nonatomic, copy) NSData *errorCodeKeyData;
+@property (nonatomic, copy) NSData *errorDescriptionKeyData;
 @property (nonatomic, strong) NSMutableDictionary *currentPacketDictionary;
 @property (nonatomic, copy) NSString *currentKey;
 @property (nonatomic, strong) NSMutableDictionary *tagContextsDictionary;
@@ -86,7 +88,7 @@ enum {
 
 @end
 
-@implementation XBAMPObjC
+@implementation XBAMP
 
 - (id)init
 {
@@ -100,10 +102,12 @@ enum {
         self.socket = socket;
         self.clientSockets = [[NSMutableDictionary alloc] init];
         self.tagCounter = 0;
-        self.askData = [kAMPAskKey dataUsingEncoding:NSUTF8StringEncoding];
-        self.commandData = [kAMPCommandKey dataUsingEncoding:NSUTF8StringEncoding];
-        self.answerData = [kAMPAnswerKey dataUsingEncoding:NSUTF8StringEncoding];
-        self.errorData = [kAMPErrorKey dataUsingEncoding:NSUTF8StringEncoding];
+        self.askKeyData = [kAMPAskKey dataUsingEncoding:NSUTF8StringEncoding];
+        self.commandKeyData = [kAMPCommandKey dataUsingEncoding:NSUTF8StringEncoding];
+        self.answerKeyData = [kAMPAnswerKey dataUsingEncoding:NSUTF8StringEncoding];
+        self.errorKeyData = [kAMPErrorKey dataUsingEncoding:NSUTF8StringEncoding];
+        self.errorCodeKeyData = [kAMPErrorCodeKey dataUsingEncoding:NSUTF8StringEncoding];
+        self.errorDescriptionKeyData = [kAMPErrorDescriptionKey dataUsingEncoding:NSUTF8StringEncoding];
         self.tagContextsDictionary = [[NSMutableDictionary alloc] init];
         self.handlerBlocksDictionary = [[NSMutableDictionary alloc] init];
         self.commandsDictionary = [[NSMutableDictionary alloc] init];
@@ -140,18 +144,18 @@ enum {
     [self.socket disconnect];
 }
 
-- (void)callCommand:(XBAMPCommand *)command withParameters:(NSDictionary *)parameters success:(void (^)(NSDictionary *))success failure:(void (^)(NSError *))failure
+- (void)callCommand:(XBAMPCommand *)command withParameters:(NSDictionary *)parameters success:(void (^)(NSDictionary *))success failure:(void (^)(XBAMPError *ampError))failure
 {
     [self callCommand:command withParameters:parameters socket:self.socket success:success failure:failure];
 }
 
-- (void)callCommand:(XBAMPCommand *)command withParameters:(NSDictionary *)parameters socketId:(NSString *)socketId success:(void (^)(NSDictionary *response))success failure:(void (^)(NSError *error))failure
+- (void)callCommand:(XBAMPCommand *)command withParameters:(NSDictionary *)parameters socketId:(NSString *)socketId success:(void (^)(NSDictionary *response))success failure:(void (^)(XBAMPError *ampError))failure
 {
     GCDAsyncSocket *socket = self.clientSockets[socketId];
     [self callCommand:command withParameters:parameters socket:socket success:success failure:failure];
 }
 
-- (void)callCommand:(XBAMPCommand *)command withParameters:(NSDictionary *)parameters socket:(GCDAsyncSocket *)socket success:(void (^)(NSDictionary *response))success failure:(void (^)(NSError *error))failure
+- (void)callCommand:(XBAMPCommand *)command withParameters:(NSDictionary *)parameters socket:(GCDAsyncSocket *)socket success:(void (^)(NSDictionary *response))success failure:(void (^)(XBAMPError *ampError))failure
 {
     NSData *data = [self dataToCallCommand:command withParameters:parameters askTag:self.tagCounter];
     
@@ -199,12 +203,18 @@ enum {
         
         XBAMPCommandHandler block = self.handlerBlocksDictionary[commandName];
         NSString *socketId = objc_getAssociatedObject(socket, &kSocketIdKey);
-        NSDictionary *response = block(parametersDictionary, socketId);
+        XBAMPError *ampError = nil;
+        NSDictionary *response = block(parametersDictionary, socketId, &ampError);
         
         if (command.requiresAnswer) {
             NSData *askData = dictionary[kAMPAskKey];
             NSString *ask = [[NSString alloc] initWithData:askData encoding:NSUTF8StringEncoding];
-            [self sendResponse:response forTag:ask.integerValue socket:socket command:command];
+            if (response != nil) {
+                [self sendResponse:response forTag:ask.integerValue socket:socket command:command];
+            }
+            else if (ampError != nil) {
+                [self sendError:ampError forTag:ask.integerValue socket:socket command:command];
+            }
         }
     }
     else if (dictionary[kAMPAnswerKey]) {
@@ -252,11 +262,11 @@ enum {
             
             if (index != NSNotFound) {
                 XBAMPError *ampError = tagContext.command.errors[index];
-                NSError *error = [[NSError alloc] initWithDomain:XBAMPErrorDomain code:ampError.code userInfo:@{NSLocalizedDescriptionKey:errorDescriptionString}];
-                tagContext.failure(error);
+                tagContext.failure(ampError);
             }
             else {
-                
+                XBAMPError *ampError = [[XBAMPError alloc] initWithCode:kXBAMPUnknownErrorCode codeString:errorCodeString description:errorDescriptionString];
+                tagContext.failure(ampError);
             }
         }
     }
@@ -275,24 +285,14 @@ enum {
 
 - (void)sendResponse:(NSDictionary *)response forTag:(NSUInteger)tag socket:(GCDAsyncSocket *)socket command:(XBAMPCommand *)command
 {
-    NSMutableData *mutableData = [[NSMutableData alloc] init];
-    [self appendLengthAndData:self.answerData toMutableData:mutableData];
-    
-    NSData *tagData = [[@(tag) stringValue] dataUsingEncoding:NSUTF8StringEncoding];
-    [self appendLengthAndData:tagData toMutableData:mutableData];
-    
-    for (NSString *key in response) {
-        XBAMPType *type = command.responseTypes[key];
-        id value = response[key];
-        NSData *data = [type encodeObject:value];
-        [self appendLengthAndData:[key dataUsingEncoding:NSUTF8StringEncoding] toMutableData:mutableData];
-        [self appendLengthAndData:data toMutableData:mutableData];
-    }
-    
-    unsigned short zero = 0;
-    [mutableData appendBytes:&zero length:sizeof(unsigned short)];
-    
-    [socket writeData:mutableData withTimeout:-1 tag:kWriteDataTag];
+    NSData *responseData = [self dataForResponse:response toCommand:command answerTag:tag];
+    [socket writeData:responseData withTimeout:-1 tag:kWriteDataTag];
+}
+
+- (void)sendError:(XBAMPError *)ampError forTag:(NSUInteger)tag socket:(GCDAsyncSocket *)socket command:(XBAMPCommand *)command
+{
+    NSData *errorData = [self dataForError:ampError withTag:tag];
+    [socket writeData:errorData withTimeout:-1 tag:kWriteDataTag];
 }
 
 - (NSData *)dataToCallCommand:(XBAMPCommand *)command withParameters:(NSDictionary *)parameters askTag:(NSUInteger)askTag
@@ -302,11 +302,11 @@ enum {
     if (command.requiresAnswer) {
         NSString *askTagString = [@(askTag) stringValue];
         NSData *askTagData = [askTagString dataUsingEncoding:NSUTF8StringEncoding];
-        [self appendLengthAndData:self.askData toMutableData:mutableData];
+        [self appendLengthAndData:self.askKeyData toMutableData:mutableData];
         [self appendLengthAndData:askTagData toMutableData:mutableData];
     }
     
-    [self appendLengthAndData:self.commandData toMutableData:mutableData];
+    [self appendLengthAndData:self.commandKeyData toMutableData:mutableData];
     [self appendLengthAndData:[command.name dataUsingEncoding:NSUTF8StringEncoding] toMutableData:mutableData];
     
     for (NSString *key in [command.parameterTypes allKeys]) {
@@ -328,16 +328,37 @@ enum {
     NSMutableData *mutableData = [[NSMutableData alloc] init];
     NSString *answerTagString = [@(answerTag) stringValue];
     NSData *answerTagData = [answerTagString dataUsingEncoding:NSUTF8StringEncoding];
-    [self appendLengthAndData:self.answerData toMutableData:mutableData];
+    [self appendLengthAndData:self.answerKeyData toMutableData:mutableData];
     [self appendLengthAndData:answerTagData toMutableData:mutableData];
     
-    for (NSString *key in [command.responseTypes allKeys]) {
+    for (NSString *key in response.allKeys) {
         id value = response[key];
         XBAMPType *ampType = command.responseTypes[key];
         NSData *valueData = [ampType encodeObject:value];
         [self appendLengthAndData:[key dataUsingEncoding:NSUTF8StringEncoding] toMutableData:mutableData];
         [self appendLengthAndData:valueData toMutableData:mutableData];
     }
+    
+    unsigned short zero = 0;
+    [mutableData appendBytes:&zero length:sizeof(unsigned short)];
+    
+    return [mutableData copy];
+}
+
+- (NSData *)dataForError:(XBAMPError *)ampError withTag:(NSUInteger)tag
+{
+    NSMutableData *mutableData = [[NSMutableData alloc] init];
+    NSData *tagData = [[@(tag) stringValue] dataUsingEncoding:NSUTF8StringEncoding];
+    [self appendLengthAndData:self.errorKeyData toMutableData:mutableData];
+    [self appendLengthAndData:tagData toMutableData:mutableData];
+    
+    NSData *errorCodeData = [ampError.codeString dataUsingEncoding:NSUTF8StringEncoding];
+    [self appendLengthAndData:self.errorCodeKeyData toMutableData:mutableData];
+    [self appendLengthAndData:errorCodeData toMutableData:mutableData];
+    
+    NSData *errorDescriptionData = [ampError.errorDescription dataUsingEncoding:NSUTF8StringEncoding];
+    [self appendLengthAndData:self.errorDescriptionKeyData toMutableData:mutableData];
+    [self appendLengthAndData:errorDescriptionData toMutableData:mutableData];
     
     unsigned short zero = 0;
     [mutableData appendBytes:&zero length:sizeof(unsigned short)];
