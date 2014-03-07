@@ -387,6 +387,33 @@
     [self waitForStatus:kGHUnitWaitStatusSuccess timeout:10];
 }
 
+// The python server must be running for this test to pass. Go into the XBAMPObjCTests directory and run twistd -y server.tac
+- (void)testPythonServer
+{
+    [self prepare];
+    
+    XBAMPString *ampString = [[XBAMPString alloc] init];
+    XBAMPCommand *sendMessageCommand = [[XBAMPCommand alloc] initWithName:@"SendMessage" parameterTypes:@{@"message": ampString} responseTypes:nil errors:nil];
+    XBAMP *ampClient = [[XBAMP alloc] init];
+    [ampClient handleCommand:sendMessageCommand withBlock:^NSDictionary *(NSDictionary *parameters, NSString *socketId, XBAMPError **ampError) {
+        NSLog(@"%@", parameters[@"message"]);
+        return nil;
+    }];
+    
+    [ampClient connectToHost:@"localhost" port:25683 success:^{
+        [ampClient callCommand:sendMessageCommand withParameters:@{@"message": @"Hi there!"} success:^(NSDictionary *response) {
+            [ampClient closeConnection];
+            [self notify:kGHUnitWaitStatusSuccess forSelector:@selector(testPythonServer)];
+        } failure:^(XBAMPError *ampError) {
+            NSLog(@"%@", ampError);
+        }];
+    } failure:^(NSError *error) {
+        NSLog(@"%@", error);
+    }];
+    
+    [self waitForStatus:kGHUnitWaitStatusSuccess timeout:10];
+}
+
 - (void)testServer
 {
     [self prepare];
@@ -432,7 +459,7 @@
     
     // Setup client
     XBAMP *ampClient = [[XBAMP alloc] init];
-
+    
     [ampClient handleCommand:sendMessageCommand withBlock:^NSDictionary *(NSDictionary *parameters, NSString *socketId, XBAMPError **ampError) {
         NSLog(@"%@", parameters[@"message"]);
         return nil;
@@ -447,45 +474,18 @@
         double delayInSeconds = 2.0;
         dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC));
         dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-        [ampClient callCommand:sendMessageCommand withParameters:@{@"message": @"Hello"} success:^(NSDictionary *response) {
-            [ampClient closeConnection];
-            [self notify:kGHUnitWaitStatusSuccess forSelector:@selector(testServer)];
-        } failure:^(XBAMPError *ampError) {
-            NSLog(@"%@", error);
-        }];
+            [ampClient callCommand:sendMessageCommand withParameters:@{@"message": @"Hello"} success:^(NSDictionary *response) {
+                [ampClient closeConnection];
+                [self notify:kGHUnitWaitStatusSuccess forSelector:@selector(testServer)];
+            } failure:^(XBAMPError *ampError) {
+                NSLog(@"%@", error);
+            }];
         });
     } failure:^(NSError *error) {
         NSLog(@"%@", error);
     }];
     
     [self waitForStatus:kGHUnitWaitStatusSuccess timeout:1000];
-}
-
-// The python server must be running for this test to pass. Go into the XBAMPObjCTests directory and run twistd -y server.tac
-- (void)testPythonServer
-{
-    [self prepare];
-    
-    XBAMPString *ampString = [[XBAMPString alloc] init];
-    XBAMPCommand *sendMessageCommand = [[XBAMPCommand alloc] initWithName:@"SendMessage" parameterTypes:@{@"message": ampString} responseTypes:nil errors:nil];
-    XBAMP *ampClient = [[XBAMP alloc] init];
-    [ampClient handleCommand:sendMessageCommand withBlock:^NSDictionary *(NSDictionary *parameters, NSString *socketId, XBAMPError **ampError) {
-        NSLog(@"%@", parameters[@"message"]);
-        return nil;
-    }];
-    
-    [ampClient connectToHost:@"localhost" port:25683 success:^{
-        [ampClient callCommand:sendMessageCommand withParameters:@{@"message": @"Hi there!"} success:^(NSDictionary *response) {
-            [ampClient closeConnection];
-            [self notify:kGHUnitWaitStatusSuccess forSelector:@selector(testPythonServer)];
-        } failure:^(XBAMPError *ampError) {
-            NSLog(@"%@", ampError);
-        }];
-    } failure:^(NSError *error) {
-        NSLog(@"%@", error);
-    }];
-    
-    [self waitForStatus:kGHUnitWaitStatusSuccess timeout:10];
 }
 
 @end
