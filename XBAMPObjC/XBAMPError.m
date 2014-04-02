@@ -23,7 +23,7 @@
 
 - (NSString *)description
 {
-    return [NSString stringWithFormat:@"Code: %d:%@, Description: %@", self.code, self.codeString, self.errorDescription];
+    return [NSString stringWithFormat:@"%@\n%@", self.codeString, self.errorDescription];
 }
 
 @end
