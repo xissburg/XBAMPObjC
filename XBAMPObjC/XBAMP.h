@@ -107,4 +107,21 @@ typedef NSDictionary *(^XBAMPCommandHandler)(NSDictionary *parameters, NSString 
  */
 - (void)handleCommand:(XBAMPCommand *)command withBlock:(XBAMPCommandHandler)block;
 
+/**
+ Specifies a selector to be called on a target whenever a given command is called. The selector receives the following parameters:
+ 
+ - parameters (NSDictionary *): A dictionary that maps strings (parameter names) to objects.
+ 
+ - socketId (NSString *) (optional): The id of the socket that the command should be handled for. If the XBAMP instance is a client, then this value should be nil.
+ 
+ - ampError (XBAMPError **): If the invocation of the command fails, it should assign a XBAMPError instance to this parameter and return nil.
+ 
+ The selector should return an NSDictionary instance containing the response.
+ 
+ @param command The command to handle invocations for.
+ @param target The target for the selector.
+ @param selector The selector that should be called on target whenever the given command is received.
+ */
+- (void)handleCommand:(XBAMPCommand *)command withTarget:(id)target selector:(SEL)selector;
+
 @end

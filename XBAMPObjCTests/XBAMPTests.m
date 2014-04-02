@@ -327,6 +327,83 @@
     [self waitForStatus:kGHUnitWaitStatusSuccess timeout:10];
 }
 
+- (void)testHandleCommandWithSelector
+{
+    [self prepare];
+    
+    XBAMPFloat *ampFloat = [[XBAMPFloat alloc] init];
+    
+    XBAMPCommand *command = [[XBAMPCommand alloc] initWithName:@"sub" parameterTypes:@{@"a": ampFloat, @"b": ampFloat} responseTypes:@{@"x": ampFloat} errors:nil];
+    
+    [amp handleCommand:command withTarget:self selector:@selector(subtractWithParameters:error:)];
+    
+    NSData *data = [amp dataToCallCommand:command withParameters:@{@"a": @3, @"b": @4} askTag:1];
+    
+    int i = 0; // _ask
+    [amp socket:amp.socket didReadData:[data subdataWithRange:NSMakeRange(i, 2)] withTag:2];
+    
+    i += 2;
+    [amp socket:amp.socket didReadData:[data subdataWithRange:NSMakeRange(i, 4)] withTag:4];
+    
+    i += 4; // 1
+    [amp socket:amp.socket didReadData:[data subdataWithRange:NSMakeRange(i, 2)] withTag:3];
+    
+    i += 2;
+    [amp socket:amp.socket didReadData:[data subdataWithRange:NSMakeRange(i, 1)] withTag:5];
+    
+    i += 1; // _command
+    [amp socket:amp.socket didReadData:[data subdataWithRange:NSMakeRange(i, 2)] withTag:2];
+    
+    i += 2;
+    [amp socket:amp.socket didReadData:[data subdataWithRange:NSMakeRange(i, 8)] withTag:4];
+    
+    i += 8; // add
+    [amp socket:amp.socket didReadData:[data subdataWithRange:NSMakeRange(i, 2)] withTag:3];
+    
+    i += 2;
+    [amp socket:amp.socket didReadData:[data subdataWithRange:NSMakeRange(i, 3)] withTag:5];
+    
+    i += 3; // a
+    [amp socket:amp.socket didReadData:[data subdataWithRange:NSMakeRange(i, 2)] withTag:2];
+    
+    i += 2;
+    [amp socket:amp.socket didReadData:[data subdataWithRange:NSMakeRange(i, 1)] withTag:4];
+    
+    i += 1; // 3
+    [amp socket:amp.socket didReadData:[data subdataWithRange:NSMakeRange(i, 2)] withTag:3];
+    
+    i += 2;
+    [amp socket:amp.socket didReadData:[data subdataWithRange:NSMakeRange(i, 1)] withTag:5];
+    
+    i += 1; // b
+    [amp socket:amp.socket didReadData:[data subdataWithRange:NSMakeRange(i, 2)] withTag:2];
+    
+    i += 2;
+    [amp socket:amp.socket didReadData:[data subdataWithRange:NSMakeRange(i, 1)] withTag:4];
+    
+    i += 1; // 4
+    [amp socket:amp.socket didReadData:[data subdataWithRange:NSMakeRange(i, 2)] withTag:3];
+    
+    i += 2;
+    [amp socket:amp.socket didReadData:[data subdataWithRange:NSMakeRange(i, 1)] withTag:5];
+    
+    i += 1; // zero, EOF, should invoke the handler
+    [amp socket:amp.socket didReadData:[data subdataWithRange:NSMakeRange(i, 2)] withTag:2];
+    
+    [self waitForStatus:kGHUnitWaitStatusSuccess timeout:10];
+}
+
+- (NSDictionary *)subtractWithParameters:(NSDictionary *)parameters error:(XBAMPError **)error
+{
+    CGFloat a = [parameters[@"a"] floatValue];
+    CGFloat b = [parameters[@"b"] floatValue];
+    CGFloat result = a - b;
+    
+    GHAssertEqualsWithAccuracy(result, -1.f, 0.0001f, nil);
+    [self notify:kGHUnitWaitStatusSuccess forSelector:@selector(testHandleCommandWithSelector)];
+
+    return @{@"x": @(a - b)};
+}
 
 - (void)testError
 {

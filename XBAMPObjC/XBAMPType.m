@@ -10,6 +10,11 @@
 
 @implementation XBAMPType
 
++ (instancetype)type
+{
+    return [[self alloc] init];
+}
+
 - (NSData *)encodeObject:(id)object
 {
     NSAssert(NO, @"+[XBAMPType encodeObject:] is abstract and should be implemented by a subclass");

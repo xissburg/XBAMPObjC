@@ -8,6 +8,7 @@
 
 #import "XBAMP.h"
 #import <objc/runtime.h>
+#import <objc/message.h>
 
 /**
  AMP keywords.
@@ -84,6 +85,7 @@ enum {
 @property (nonatomic, copy) NSString *currentKey;
 @property (nonatomic, strong) NSMutableDictionary *tagContextsDictionary;
 @property (nonatomic, strong) NSMutableDictionary *handlerBlocksDictionary;
+@property (nonatomic, strong) NSMutableDictionary *handlerSelectorsDictionary;
 @property (nonatomic, strong) NSMutableDictionary *commandsDictionary;
 
 @end
@@ -110,6 +112,7 @@ enum {
         self.errorDescriptionKeyData = [kAMPErrorDescriptionKey dataUsingEncoding:NSUTF8StringEncoding];
         self.tagContextsDictionary = [[NSMutableDictionary alloc] init];
         self.handlerBlocksDictionary = [[NSMutableDictionary alloc] init];
+        self.handlerSelectorsDictionary = [[NSMutableDictionary alloc] init];
         self.commandsDictionary = [[NSMutableDictionary alloc] init];
     }
     return self;
@@ -172,6 +175,14 @@ enum {
 {
     self.commandsDictionary[command.name] = command;
     self.handlerBlocksDictionary[command.name] = [block copy];
+    [self.handlerSelectorsDictionary removeObjectForKey:command.name];
+}
+
+- (void)handleCommand:(XBAMPCommand *)command withTarget:(id)target selector:(SEL)selector
+{
+    self.commandsDictionary[command.name] = command;
+    self.handlerSelectorsDictionary[command.name] = @[target, NSStringFromSelector(selector)];
+    [self.handlerBlocksDictionary removeObjectForKey:command.name];
 }
 
 #pragma mark - Private Methods
@@ -190,29 +201,63 @@ enum {
         NSString *commandName = [[NSString alloc] initWithData:commandData encoding:NSUTF8StringEncoding];
         XBAMPCommand *command = self.commandsDictionary[commandName];
         
-        NSMutableDictionary *mutableDictionary = [dictionary mutableCopy];
-        [mutableDictionary removeObjectsForKeys:@[kAMPCommandKey, kAMPAskKey]];
-        NSMutableDictionary *parametersDictionary = [[NSMutableDictionary alloc] init];
-        
-        for (NSString *key in mutableDictionary) {
-            NSData *valueData = mutableDictionary[key];
-            XBAMPType *ampType = command.parameterTypes[key];
-            id value = [ampType decodeData:valueData];
-            parametersDictionary[key] = value;
-        }
-        
-        XBAMPCommandHandler block = self.handlerBlocksDictionary[commandName];
-        NSString *socketId = objc_getAssociatedObject(socket, &kSocketIdKey);
-        XBAMPError *ampError = nil;
-        NSDictionary *response = block(parametersDictionary, socketId, &ampError);
-        
-        if (command.requiresAnswer) {
-            NSData *askData = dictionary[kAMPAskKey];
-            NSString *ask = [[NSString alloc] initWithData:askData encoding:NSUTF8StringEncoding];
-            if (response != nil) {
-                [self sendResponse:response forTag:ask.integerValue socket:socket command:command];
+        if (command) {
+            NSMutableDictionary *mutableDictionary = [dictionary mutableCopy];
+            [mutableDictionary removeObjectsForKeys:@[kAMPCommandKey, kAMPAskKey]];
+            NSMutableDictionary *parametersDictionary = [[NSMutableDictionary alloc] init];
+            
+            for (NSString *key in mutableDictionary) {
+                NSData *valueData = mutableDictionary[key];
+                XBAMPType *ampType = command.parameterTypes[key];
+                id value = [ampType decodeData:valueData];
+                parametersDictionary[key] = value;
             }
-            else if (ampError != nil) {
+            
+            NSString *socketId = objc_getAssociatedObject(socket, &kSocketIdKey);
+            XBAMPError *ampError = nil;
+            NSDictionary *response = nil;
+            
+            XBAMPCommandHandler block = self.handlerBlocksDictionary[commandName];
+            NSArray *targetSelectorPair = self.handlerSelectorsDictionary[commandName];
+            
+            if (block) {
+                response = block(parametersDictionary, socketId, &ampError);
+            }
+            else if (targetSelectorPair) {
+                id target = targetSelectorPair[0];
+                SEL selector = NSSelectorFromString(targetSelectorPair[1]);
+                Method method = class_getInstanceMethod([target class], selector);
+                const char *encoding = method_getTypeEncoding(method);
+                NSMethodSignature *signature = [NSMethodSignature signatureWithObjCTypes:encoding];
+                int parameterCount = signature.numberOfArguments - 2; // Remove self and _cmd from count
+                
+                if (parameterCount == 3) {
+                    response = objc_msgSend(target, selector, parametersDictionary, socketId, &ampError);
+                }
+                else { // The selector doesn't receive the socketId parameter in this case.
+                    response = objc_msgSend(target, selector, parametersDictionary, &ampError);
+                }
+            }
+            else {
+                NSAssert(NO, @"Command assigned without a block or selector handler.");
+            }
+            
+            if (command.requiresAnswer) {
+                NSData *askData = dictionary[kAMPAskKey];
+                NSString *ask = [[NSString alloc] initWithData:askData encoding:NSUTF8StringEncoding];
+                if (response != nil) {
+                    [self sendResponse:response forTag:ask.integerValue socket:socket command:command];
+                }
+                else if (ampError != nil) {
+                    [self sendError:ampError forTag:ask.integerValue socket:socket command:command];
+                }
+            }
+        }
+        else {
+            NSData *askData = dictionary[kAMPAskKey];
+            if (askData) {
+                NSString *ask = [[NSString alloc] initWithData:askData encoding:NSUTF8StringEncoding];
+                XBAMPError *ampError = [[XBAMPError alloc] initWithCode:0 codeString:@"UNHANDLED" description:[NSString stringWithFormat:@"Unhandled Command: '%@'", commandName]];
                 [self sendError:ampError forTag:ask.integerValue socket:socket command:command];
             }
         }
@@ -311,10 +356,12 @@ enum {
     
     for (NSString *key in [command.parameterTypes allKeys]) {
         id value = parameters[key];
-        XBAMPType *ampType = command.parameterTypes[key];
-        NSData *valueData = [ampType encodeObject:value];
-        [self appendLengthAndData:[key dataUsingEncoding:NSUTF8StringEncoding] toMutableData:mutableData];
-        [self appendLengthAndData:valueData toMutableData:mutableData];
+        if (value) {
+            XBAMPType *ampType = command.parameterTypes[key];
+            NSData *valueData = [ampType encodeObject:value];
+            [self appendLengthAndData:[key dataUsingEncoding:NSUTF8StringEncoding] toMutableData:mutableData];
+            [self appendLengthAndData:valueData toMutableData:mutableData];
+        }
     }
     
     unsigned short zero = 0;

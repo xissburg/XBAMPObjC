@@ -14,6 +14,8 @@
  */
 @interface XBAMPType : NSObject
 
++ (instancetype)type;
+
 /**
  Encodes an object of the expected type into an NSData instance whose bytes can be inserted in an AMP packet.
  
