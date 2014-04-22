@@ -229,7 +229,7 @@ enum {
                 Method method = class_getInstanceMethod([target class], selector);
                 const char *encoding = method_getTypeEncoding(method);
                 NSMethodSignature *signature = [NSMethodSignature signatureWithObjCTypes:encoding];
-                int parameterCount = signature.numberOfArguments - 2; // Remove self and _cmd from count
+                NSUInteger parameterCount = signature.numberOfArguments - 2; // Remove self and _cmd from count
                 
                 if (parameterCount == 3) {
                     response = objc_msgSend(target, selector, parametersDictionary, socketId, &ampError);
@@ -297,13 +297,17 @@ enum {
             NSData *errorDescriptionData = dictionary[kAMPErrorDescriptionKey];
             NSString *errorDescriptionString = [[NSString alloc] initWithData:errorDescriptionData encoding:NSUTF8StringEncoding];
             
-            NSUInteger index = [tagContext.command.errors indexOfObjectPassingTest:^BOOL(XBAMPError *obj, NSUInteger idx, BOOL *stop) {
-                if ([obj.codeString isEqualToString:errorCodeString]) {
-                    *stop = YES;
-                    return YES;
-                }
-                return NO;
-            }];
+            NSUInteger index = NSNotFound;
+            
+            if (tagContext.command.errors.count > 0) {
+                index = [tagContext.command.errors indexOfObjectPassingTest:^BOOL(XBAMPError *obj, NSUInteger idx, BOOL *stop) {
+                    if ([obj.codeString isEqualToString:errorCodeString]) {
+                        *stop = YES;
+                        return YES;
+                    }
+                    return NO;
+                }];
+            }
             
             if (index != NSNotFound) {
                 XBAMPError *ampError = tagContext.command.errors[index];
@@ -451,8 +455,11 @@ enum {
             self.currentPacketDictionary = nil;
             [sock readDataToLength:sizeof(unsigned short) withTimeout:-1 tag:kReadAMPKeyLengthTag];
         }
-        else {
+        else if (length > 0) {
             [sock readDataToLength:length withTimeout:-1 tag:tag == kReadAMPKeyLengthTag? kReadAMPKeyTag: kReadAMPValueTag];
+        }
+        else {
+            [sock readDataToLength:sizeof(unsigned short) withTimeout:-1 tag:kReadAMPKeyLengthTag];
         }
     }
     else if (tag == kReadAMPKeyTag) {

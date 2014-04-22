@@ -13,7 +13,7 @@
 - (NSData *)encodeObject:(id)object
 {
     NSNumber *number = object;
-    NSString *string = [NSString stringWithFormat:@"%d", number.integerValue];
+    NSString *string = [NSString stringWithFormat:@"%ld", (long)number.integerValue];
     return [string dataUsingEncoding:NSUTF8StringEncoding];
 }
 
