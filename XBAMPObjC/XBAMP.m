@@ -438,6 +438,8 @@ enum {
     
     objc_setAssociatedObject(sock, &kConnectBlockKey, nil, OBJC_ASSOCIATION_COPY);
     objc_setAssociatedObject(sock, &kDisconnectBlockKey, nil, OBJC_ASSOCIATION_COPY);
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:XBAMPDidEstablishConnection object:self userInfo:nil];
 
     // Perform the first read to initiate the continuous chain of reads
     [sock readDataToLength:sizeof(unsigned short) withTimeout:-1 tag:kReadAMPKeyLengthTag];
@@ -493,6 +495,13 @@ enum {
         NSString *socketId = objc_getAssociatedObject(sock, &kSocketIdKey);
         self.didCloseConnection(socketId);
     }
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:XBAMPDidCloseConnection object:self userInfo:nil];
 }
 
 @end
+
+#pragma mark - Notifications
+
+NSString *const XBAMPDidCloseConnection = @"XBAMPDidCloseConnection";
+NSString *const XBAMPDidEstablishConnection = @"XBAMPDidEstablishConnection";

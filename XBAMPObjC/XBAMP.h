@@ -125,3 +125,8 @@ typedef NSDictionary *(^XBAMPCommandHandler)(NSDictionary *parameters, NSString 
 - (void)handleCommand:(XBAMPCommand *)command withTarget:(id)target selector:(SEL)selector;
 
 @end
+
+#pragma mark - Notifications
+
+extern NSString *const XBAMPDidCloseConnection;
+extern NSString *const XBAMPDidEstablishConnection;
