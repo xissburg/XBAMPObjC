@@ -114,6 +114,7 @@ enum {
         self.handlerBlocksDictionary = [[NSMutableDictionary alloc] init];
         self.handlerSelectorsDictionary = [[NSMutableDictionary alloc] init];
         self.commandsDictionary = [[NSMutableDictionary alloc] init];
+        self.timeout = 120;
     }
     return self;
 }
@@ -168,7 +169,7 @@ enum {
         self.tagCounter++;
     }
     
-    [socket writeData:data withTimeout:-1 tag:kWriteDataTag];
+    [socket writeData:data withTimeout:self.timeout tag:kWriteDataTag];
 }
 
 - (void)handleCommand:(XBAMPCommand *)command withBlock:(XBAMPCommandHandler)block
@@ -232,10 +233,10 @@ enum {
                 NSUInteger parameterCount = signature.numberOfArguments - 2; // Remove self and _cmd from count
                 
                 if (parameterCount == 3) {
-                    response = objc_msgSend(target, selector, parametersDictionary, socketId, &ampError);
+                    response = ((NSDictionary * (*)(id, SEL, NSDictionary *, NSString *, XBAMPError **))objc_msgSend)(target, selector, parametersDictionary, socketId, &ampError);
                 }
                 else { // The selector doesn't receive the socketId parameter in this case.
-                    response = objc_msgSend(target, selector, parametersDictionary, &ampError);
+                    response = ((NSDictionary * (*)(id, SEL, NSDictionary *, XBAMPError **))objc_msgSend)(target, selector, parametersDictionary, &ampError);
                 }
             }
             else {
@@ -335,13 +336,13 @@ enum {
 - (void)sendResponse:(NSDictionary *)response forTag:(NSUInteger)tag socket:(GCDAsyncSocket *)socket command:(XBAMPCommand *)command
 {
     NSData *responseData = [self dataForResponse:response toCommand:command answerTag:tag];
-    [socket writeData:responseData withTimeout:-1 tag:kWriteDataTag];
+    [socket writeData:responseData withTimeout:self.timeout tag:kWriteDataTag];
 }
 
 - (void)sendError:(XBAMPError *)ampError forTag:(NSUInteger)tag socket:(GCDAsyncSocket *)socket command:(XBAMPCommand *)command
 {
     NSData *errorData = [self dataForError:ampError withTag:tag];
-    [socket writeData:errorData withTimeout:-1 tag:kWriteDataTag];
+    [socket writeData:errorData withTimeout:self.timeout tag:kWriteDataTag];
 }
 
 - (NSData *)dataToCallCommand:(XBAMPCommand *)command withParameters:(NSDictionary *)parameters askTag:(NSUInteger)askTag
@@ -455,20 +456,21 @@ enum {
         if (tag == kReadAMPKeyLengthTag && length == 0) {
             [self processPacketDictionary:self.currentPacketDictionary forSocket:sock];
             self.currentPacketDictionary = nil;
+            // The timeout is -1 here because this will start to read another packet, but there might not be a packet to be read yet.
             [sock readDataToLength:sizeof(unsigned short) withTimeout:-1 tag:kReadAMPKeyLengthTag];
         }
         else if (length > 0) {
-            [sock readDataToLength:length withTimeout:-1 tag:tag == kReadAMPKeyLengthTag? kReadAMPKeyTag: kReadAMPValueTag];
+            [sock readDataToLength:length withTimeout:self.timeout tag:tag == kReadAMPKeyLengthTag? kReadAMPKeyTag: kReadAMPValueTag];
         }
         else {
-            [sock readDataToLength:sizeof(unsigned short) withTimeout:-1 tag:kReadAMPKeyLengthTag];
+            [sock readDataToLength:sizeof(unsigned short) withTimeout:self.timeout tag:kReadAMPKeyLengthTag];
         }
     }
     else if (tag == kReadAMPKeyTag) {
         self.currentKey = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
         
         // Read the length of the next value
-        [sock readDataToLength:sizeof(unsigned short) withTimeout:-1 tag:kReadAMPValueLengthTag];
+        [sock readDataToLength:sizeof(unsigned short) withTimeout:self.timeout tag:kReadAMPValueLengthTag];
     }
     else if (tag == kReadAMPValueTag) {
         if (self.currentPacketDictionary == nil) {
@@ -477,7 +479,7 @@ enum {
         self.currentPacketDictionary[self.currentKey] = data;
         
         // Read the length of the next key
-        [sock readDataToLength:sizeof(unsigned short) withTimeout:-1 tag:kReadAMPKeyLengthTag];
+        [sock readDataToLength:sizeof(unsigned short) withTimeout:self.timeout tag:kReadAMPKeyLengthTag];
     }
 }
 
@@ -487,6 +489,13 @@ enum {
     if (failure) {
         failure(err);
     }
+    
+    if (self.didCloseConnection) {
+        NSString *socketId = objc_getAssociatedObject(sock, &kSocketIdKey);
+        self.didCloseConnection(socketId);
+    }
+    
+    [[NSNotificationCenter defaultCenter] postNotificationName:XBAMPDidCloseConnection object:self userInfo:nil];
 }
 
 - (void)socketDidCloseReadStream:(GCDAsyncSocket *)sock

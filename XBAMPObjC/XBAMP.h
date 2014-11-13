@@ -33,6 +33,11 @@ typedef NSDictionary *(^XBAMPCommandHandler)(NSDictionary *parameters, NSString 
 @property (nonatomic, readonly, getter = isConnected) BOOL connected;
 
 /**
+ Timeout for read and writes. Set it to -1 for no timeouts.
+ */
+@property (nonatomic, assign) NSTimeInterval timeout;
+
+/**
  Block invoked when a connection is closed/lost. The socketId is not nil only if this is accepting new connections.
  */
 @property (nonatomic, copy) void (^didCloseConnection)(NSString *socketId);
