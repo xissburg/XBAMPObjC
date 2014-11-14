@@ -37,7 +37,6 @@
 		1B256E9C17D9212C00CF93F6 /* XBAMPFloat.m in Sources */ = {isa = PBXBuildFile; fileRef = 1BCFE3CF17C93ED500EE96D3 /* XBAMPFloat.m */; };
 		1B256E9D17D9212C00CF93F6 /* XBAMPDate.m in Sources */ = {isa = PBXBuildFile; fileRef = 1BCFE3D217C9550700EE96D3 /* XBAMPDate.m */; };
 		1B256E9E17D9212C00CF93F6 /* XBAMPArray.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B33A07517CA36E10047FB30 /* XBAMPArray.m */; };
-		1B256E9F17D9212C00CF93F6 /* XBAMPDictionary.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B33A07817CA371A0047FB30 /* XBAMPDictionary.m */; };
 		1B256EA017D9212C00CF93F6 /* XBAMPError.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B256E5617D67D2000CF93F6 /* XBAMPError.m */; };
 		1B256EA117D9212C00CF93F6 /* XBAMPCommand.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B30C70517C8534400BB414A /* XBAMPCommand.m */; };
 		1B256EA217D9212C00CF93F6 /* XBAMP.m in Sources */ = {isa = PBXBuildFile; fileRef = 1BC2259A17C6656C006C2D6C /* XBAMP.m */; };
@@ -52,7 +51,8 @@
 		1B30C70C17C864CD00BB414A /* XBAMPString.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B30C70B17C864CD00BB414A /* XBAMPString.m */; };
 		1B30C70F17C866C100BB414A /* XBAMPBoolean.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B30C70E17C866C100BB414A /* XBAMPBoolean.m */; };
 		1B33A07617CA36E10047FB30 /* XBAMPArray.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B33A07517CA36E10047FB30 /* XBAMPArray.m */; };
-		1B33A07917CA371A0047FB30 /* XBAMPDictionary.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B33A07817CA371A0047FB30 /* XBAMPDictionary.m */; };
+		1B424F801A1691A2002F12A8 /* XBAMPList.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B424F7F1A1691A2002F12A8 /* XBAMPList.m */; };
+		1B424F811A169210002F12A8 /* XBAMPList.m in Sources */ = {isa = PBXBuildFile; fileRef = 1B424F7F1A1691A2002F12A8 /* XBAMPList.m */; };
 		1BC2259417C6656C006C2D6C /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1BC2259317C6656C006C2D6C /* Foundation.framework */; };
 		1BC2259917C6656C006C2D6C /* XBAMP.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1BC2259817C6656C006C2D6C /* XBAMP.h */; };
 		1BC2259B17C6656C006C2D6C /* XBAMP.m in Sources */ = {isa = PBXBuildFile; fileRef = 1BC2259A17C6656C006C2D6C /* XBAMP.m */; };
@@ -119,8 +119,8 @@
 		1B30C70E17C866C100BB414A /* XBAMPBoolean.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XBAMPBoolean.m; sourceTree = "<group>"; };
 		1B33A07417CA36E10047FB30 /* XBAMPArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XBAMPArray.h; sourceTree = "<group>"; };
 		1B33A07517CA36E10047FB30 /* XBAMPArray.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XBAMPArray.m; sourceTree = "<group>"; };
-		1B33A07717CA371A0047FB30 /* XBAMPDictionary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XBAMPDictionary.h; sourceTree = "<group>"; };
-		1B33A07817CA371A0047FB30 /* XBAMPDictionary.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XBAMPDictionary.m; sourceTree = "<group>"; };
+		1B424F7E1A1691A2002F12A8 /* XBAMPList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = XBAMPList.h; sourceTree = "<group>"; };
+		1B424F7F1A1691A2002F12A8 /* XBAMPList.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XBAMPList.m; sourceTree = "<group>"; };
 		1B4EC9D217C6750A000DA622 /* XBAMPCommandTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XBAMPCommandTests.m; sourceTree = "<group>"; };
 		1BC2259017C6656C006C2D6C /* libXBAMPObjC.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libXBAMPObjC.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		1BC2259317C6656C006C2D6C /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -281,8 +281,8 @@
 				1BCFE3D217C9550700EE96D3 /* XBAMPDate.m */,
 				1B33A07417CA36E10047FB30 /* XBAMPArray.h */,
 				1B33A07517CA36E10047FB30 /* XBAMPArray.m */,
-				1B33A07717CA371A0047FB30 /* XBAMPDictionary.h */,
-				1B33A07817CA371A0047FB30 /* XBAMPDictionary.m */,
+				1B424F7E1A1691A2002F12A8 /* XBAMPList.h */,
+				1B424F7F1A1691A2002F12A8 /* XBAMPList.m */,
 				1B256E5517D67D2000CF93F6 /* XBAMPError.h */,
 				1B256E5617D67D2000CF93F6 /* XBAMPError.m */,
 				1B30C70417C8534400BB414A /* XBAMPCommand.h */,
@@ -419,10 +419,10 @@
 				1B256E9C17D9212C00CF93F6 /* XBAMPFloat.m in Sources */,
 				1B256E9D17D9212C00CF93F6 /* XBAMPDate.m in Sources */,
 				1B256E9E17D9212C00CF93F6 /* XBAMPArray.m in Sources */,
-				1B256E9F17D9212C00CF93F6 /* XBAMPDictionary.m in Sources */,
 				1B256EA017D9212C00CF93F6 /* XBAMPError.m in Sources */,
 				1B256EA117D9212C00CF93F6 /* XBAMPCommand.m in Sources */,
 				1B256EA217D9212C00CF93F6 /* XBAMP.m in Sources */,
+				1B424F811A169210002F12A8 /* XBAMPList.m in Sources */,
 				1B256EA317D921B700CF93F6 /* GCDAsyncSocket.m in Sources */,
 				1B256EA417D921BA00CF93F6 /* GCDAsyncUdpSocket.m in Sources */,
 			);
@@ -436,13 +436,13 @@
 				1B30C70017C84A4E00BB414A /* XBAMPType.m in Sources */,
 				1B30C70317C8501D00BB414A /* XBAMPInteger.m in Sources */,
 				1B30C70617C8534400BB414A /* XBAMPCommand.m in Sources */,
+				1B424F801A1691A2002F12A8 /* XBAMPList.m in Sources */,
 				1B30C70917C8625B00BB414A /* XBAMPBytes.m in Sources */,
 				1B30C70C17C864CD00BB414A /* XBAMPString.m in Sources */,
 				1B30C70F17C866C100BB414A /* XBAMPBoolean.m in Sources */,
 				1BCFE3D017C93ED500EE96D3 /* XBAMPFloat.m in Sources */,
 				1BCFE3D317C9550700EE96D3 /* XBAMPDate.m in Sources */,
 				1B33A07617CA36E10047FB30 /* XBAMPArray.m in Sources */,
-				1B33A07917CA371A0047FB30 /* XBAMPDictionary.m in Sources */,
 				1B256E5717D67D2100CF93F6 /* XBAMPError.m in Sources */,
 				1B256E8917D9209F00CF93F6 /* GCDAsyncSocket.m in Sources */,
 				1B256E8A17D920A200CF93F6 /* GCDAsyncUdpSocket.m in Sources */,

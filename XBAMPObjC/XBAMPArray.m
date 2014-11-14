@@ -27,6 +27,7 @@
     for (id element in array) {
         NSData *elementData = [self.elementType encodeObject:element];
         unsigned short length = (unsigned short)elementData.length;
+        length = htons(length);
         [mutableData appendBytes:&length length:sizeof(length)];
         [mutableData appendData:elementData];
     }
@@ -42,6 +43,7 @@
     while (i < data.length) {
         unsigned short length = 0;
         [data getBytes:&length range:NSMakeRange(i, sizeof(length))];
+        length = ntohs(length);
         NSData *elementData = [data subdataWithRange:NSMakeRange(i + sizeof(length), length)];
         id element = [self.elementType decodeData:elementData];
         [elementsArray addObject:element];

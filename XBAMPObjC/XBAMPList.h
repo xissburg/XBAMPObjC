@@ -1,5 +1,5 @@
 //
-//  XBAMPDictionary.h
+//  XBAMPList.h
 //  XBAMPObjC
 //
 //  Created by xissburg on 8/25/13.
@@ -9,10 +9,10 @@
 #import "XBAMPType.h"
 
 /**
- In order to encode and decode AMP dictionaries (AmpList) the type of each entry must be known. This class stores the AMP type of each 
+ In order to encode and decode arrays of dictionaries (AmpList) the type of each entry must be known. This class stores the AMP type of each
  element in a dictionary that maps element names to AMP types.
  */
-@interface XBAMPDictionary : XBAMPType
+@interface XBAMPList : XBAMPType
 
 /**
  Maps element names to XBAMPType instances, that is, it specifies the type of each element of the dictionary this class is able to encode and decode.
@@ -24,7 +24,7 @@
  
  @param elementTypes A dictionary that maps names to XBAMPType instances.
  
- @return An AMP type instance capable of encoding and decoding AMP dictionaries (AmpList) with the structure specified in elementTypes.
+ @return An AMP type instance capable of encoding and decoding arrays of dictionaries (AmpList) with the structure specified in elementTypes.
  */
 - (id)initWithElementTypes:(NSDictionary *)elementTypes;
 

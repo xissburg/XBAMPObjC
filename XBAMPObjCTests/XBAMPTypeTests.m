@@ -12,7 +12,7 @@
 #import "XBAMPFloat.h"
 #import "XBAMPDate.h"
 #import "XBAMPArray.h"
-#import "XBAMPDictionary.h"
+#import "XBAMPList.h"
 
 #import <GHUnitIOS/GHUnit.h>
 
@@ -201,11 +201,11 @@
     GHAssertEqualObjects(array, anotherArray, nil);
 }
 
-- (void)testDictionaryEncoding
+- (void)testListEncoding
 {
-    NSDictionary *dictionary = @{@"name": @"Nilson Souto", @"nick": @"xissburg", @"age": @26, @"antichrist": @YES};
-    XBAMPDictionary *ampDictionary = [[XBAMPDictionary alloc] initWithElementTypes:@{@"name": [[XBAMPString alloc] init], @"nick": [[XBAMPString alloc] init], @"age": [[XBAMPInteger alloc] init], @"antichrist": [[XBAMPBoolean alloc] init]}];
-    NSData *data = [ampDictionary encodeObject:dictionary];
+    NSDictionary *dictionary = @{@"name": @"Nilson Souto", @"nick": @"xissburg", @"age": @27, @"antichrist": @YES};
+    XBAMPList *ampList = [[XBAMPList alloc] initWithElementTypes:@{@"name": [[XBAMPString alloc] init], @"nick": [[XBAMPString alloc] init], @"age": [[XBAMPInteger alloc] init], @"antichrist": [[XBAMPBoolean alloc] init]}];
+    NSData *data = [ampList encodeObject:dictionary];
     
     int i = 0;
     while (i < data.length) {
@@ -218,24 +218,24 @@
         
         [data getBytes:&length range:NSMakeRange(i, sizeof(length))];
         NSData *valueData = [data subdataWithRange:NSMakeRange(i + sizeof(length), length)];
-        XBAMPType *ampType = ampDictionary.elementTypes[key];
+        XBAMPType *ampType = ampList.elementTypes[key];
         id value = [ampType decodeData:valueData];
         GHAssertEqualObjects(value, dictionary[key], nil);
         i += length + sizeof(length);
     }
 }
 
-- (void)testDictionaryDecoding
+- (void)testListDecoding
 {
     // these bytes are the result of the encoding in testDictionaryEncoding
     unsigned char bytes[] = {0x04, 0x00, 0x6e, 0x61, 0x6d, 0x65, 0x0c, 0x00, 0x4e, 0x69, 0x6c, 0x73, 0x6f, 0x6e, 0x20, 0x53, 0x6f, 0x75, 0x74, 0x6f, 0x03, 0x00, 0x61, 0x67, 0x65, 0x02, 0x00, 0x32, 0x36, 0x0a, 0x00, 0x61, 0x6e, 0x74, 0x69, 0x63, 0x68, 0x72, 0x69, 0x73, 0x74, 0x04, 0x00, 0x54, 0x72, 0x75, 0x65, 0x04, 0x00, 0x6e, 0x69, 0x63, 0x6b, 0x08, 0x00, 0x78, 0x69, 0x73, 0x73, 0x62, 0x75, 0x72, 0x67};
     NSData *data = [[NSData alloc] initWithBytes:bytes length:sizeof(bytes)/sizeof(unsigned char)];
     
-    XBAMPDictionary *ampDictionary = [[XBAMPDictionary alloc] initWithElementTypes:@{@"name": [[XBAMPString alloc] init], @"nick": [[XBAMPString alloc] init], @"age": [[XBAMPInteger alloc] init], @"antichrist": [[XBAMPBoolean alloc] init]}];
-    NSDictionary *dictionary = [ampDictionary decodeData:data];
+    XBAMPList *ampList = [[XBAMPList alloc] initWithElementTypes:@{@"name": [[XBAMPString alloc] init], @"nick": [[XBAMPString alloc] init], @"age": [[XBAMPInteger alloc] init], @"antichrist": [[XBAMPBoolean alloc] init]}];
+    NSArray *array = [ampList decodeData:data];
     NSDictionary *anotherDictionary = @{@"name": @"Nilson Souto", @"nick": @"xissburg", @"age": @26, @"antichrist": @YES};
     
-    GHAssertEqualObjects(dictionary, anotherDictionary, nil);
+    GHAssertEqualObjects([array lastObject], anotherDictionary, nil);
 }
 
 @end

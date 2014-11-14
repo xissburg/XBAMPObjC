@@ -14,7 +14,7 @@
 #import "XBAMPFloat.h"
 #import "XBAMPDate.h"
 #import "XBAMPArray.h"
-#import "XBAMPDictionary.h"
+#import "XBAMPList.h"
 #import "XBAMPError.h"
 
 /**
