@@ -49,6 +49,9 @@
             [mutableData appendBytes:&valueLength length:sizeof(valueLength)];
             [mutableData appendData:valueData];
         }
+        
+        unsigned short zero = 0;
+        [mutableData appendBytes:&zero length:sizeof(unsigned short)];
     }
     
     return [mutableData copy];
@@ -67,7 +70,16 @@
         keyLength = ntohs(keyLength);
         
         if (keyLength == 0) {
-            break;
+            if (i + sizeof(keyLength) == data.length) {
+                [array addObject:dictionary];
+                break;
+            }
+            else {
+                [array addObject:dictionary];
+                dictionary = [[NSMutableDictionary alloc] init];
+                i += sizeof(keyLength);
+                continue;
+            }
         }
         
         NSData *keyData = [data subdataWithRange:NSMakeRange(i + sizeof(keyLength), keyLength)];
@@ -83,11 +95,6 @@
         
         dictionary[key] = value;
         i += valueLength + sizeof(valueLength);
-        
-        if (dictionary.allKeys.count == self.elementTypes.count) {
-            [array addObject:dictionary];
-            dictionary = [[NSMutableDictionary alloc] init];
-        }
     }
     
     return array;
